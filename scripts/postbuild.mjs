@@ -4,8 +4,10 @@
  * Cloudflare Pages normalises a directory index: with `checkout/index.html`
  * present, a request for `/checkout` gets a 308 to `/checkout/` — and the /bp
  * contract (§2) forbids any redirect on the checkout route. So the checkout
- * page is shipped as a single flat file, `dist/checkout.html`, and `_redirects`
- * maps both `/checkout` and `/checkout/` onto it with a status-200 rewrite.
+ * page is shipped as a single flat file, `dist/checkout.html`; Pages serves it
+ * at `/checkout` natively and `_redirects` proxies only the trailing-slash
+ * form to the extension-less path (a `.html` proxy target makes Pages strip the
+ * extension again and loop).
  *
  * Assets inside the page are absolute (`/assets/…`, `/bp/…`), so relocating the
  * HTML out of the sub-directory is safe.
@@ -39,9 +41,18 @@ fs.writeFileSync(dest, html);
 fs.rmSync(path.join(DIST, 'checkout'), { recursive: true, force: true });
 
 const redirects = fs.readFileSync(path.join(DIST, '_redirects'), 'utf8');
-if (/^\/checkout[\/\s]/m.test(redirects)) {
+const badCheckoutRule = redirects
+  .split('\n')
+  .map((line) => line.trim())
+  .filter((line) => line && !line.startsWith('#'))
+  .find((line) => {
+    const [from, to] = line.split(/\s+/);
+    return from && from.startsWith('/checkout') && to && to.endsWith('.html');
+  });
+
+if (badCheckoutRule) {
   console.error(
-    '[postbuild] _redirects contains a /checkout rule — Pages would rewrite the .html target back and emit a 308 loop'
+    `[postbuild] _redirects proxies /checkout to a .html target ("${badCheckoutRule}") — Pages strips the extension again and loops with a 308`
   );
   process.exit(1);
 }

@@ -49,10 +49,16 @@ await check('1. /checkout served without redirect', () => {
     throw new Error('dist/checkout/index.html still exists — Pages would answer /checkout with a 308');
   }
   const redirects = fs.readFileSync(path.join(DIST, '_redirects'), 'utf8');
-  if (/^\/checkout[\/\s]/m.test(redirects)) {
-    throw new Error('_redirects has a /checkout proxy rule — Pages loops it into a 308');
-  }
-  return 'flat checkout.html, no checkout/ directory, no /checkout proxy rule';
+  const badCheckoutRule = redirects
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .find((line) => {
+      const [from, to] = line.split(/\s+/);
+      return from && from.startsWith('/checkout') && to && to.endsWith('.html');
+    });
+  if (badCheckoutRule) throw new Error(`_redirects proxies /checkout to ${badCheckoutRule}`);
+  return 'flat checkout.html, no checkout/ directory, no .html proxy target';
 });
 
 await check('2. /bp/connector.js present', () => {

@@ -2,10 +2,11 @@
 # Static files win over these prefix rules, so /bp/*, /assets/*, /img/* and
 # /data/* are served untouched.
 #
-# NOTE: no rule for /checkout. Pages serves the flat `checkout.html` at
-# `/checkout` natively, and a 200-rewrite to a `.html` target makes Pages strip
-# the extension again and loop (it answers 308). The build asserts that
-# dist/checkout/index.html does not exist, so the route stays redirect-free.
+# NOTE: /checkout itself is served natively from the flat `checkout.html`.
+# A 200-rewrite whose target ends in `.html` makes Pages strip the extension
+# again and loop (308), so the trailing-slash form is proxied to the
+# extension-less path instead.
+/checkout/       /checkout   200
 
 /shop            /index.html   200
 /category/*      /index.html   200
