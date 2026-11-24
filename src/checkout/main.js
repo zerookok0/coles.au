@@ -257,13 +257,18 @@ function prefill() {
 
 function customer() {
   const val = (id) => (document.getElementById(id) || {}).value || '';
+  const street = val('t-addr');
+  const unit = val('t-unit');
   return {
     name: val('t-name'),
     email: val('t-email'),
-    addr: val('t-addr'),
+    phone: val('t-phone'),
+    addr: [unit, street].filter(Boolean).join(' / '),
     city: val('t-city'),
+    state: val('t-state'),
     zip: val('t-zip'),
-    country: val('t-country') || 'AU'
+    country: val('t-country') || 'AU',
+    notes: val('t-notes')
   };
 }
 
