@@ -189,44 +189,129 @@ function refresh() {
 }
 
 /* ------------------------------------------------------- collection stores */
+const STORE_KEY = 'coles_store_v1';
+
+function storeLabel(s) {
+  return `${s.name} — ${[s.suburb, s.state, s.postcode].filter(Boolean).join(' ')}`.trim();
+}
+
+function saveChosenStore(store) {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(store));
+  } catch (e) {}
+}
+
 async function hydrateStores() {
-  const sel = document.getElementById('t-store');
-  if (!sel) return;
+  const hidden = document.getElementById('t-store');
+  const input = document.getElementById('t-store-search');
+  const list = document.getElementById('co-store-results');
+  const chosen = document.getElementById('co-store-chosen');
+  const countEl = document.getElementById('co-store-count');
+  if (!hidden || !input || !list) return;
+
+  let stores = [];
+  try {
+    const res = await fetch('/data/stores.json', { cache: 'no-cache' });
+    stores = res.ok ? await res.json() : [];
+  } catch (e) {
+    stores = [];
+  }
+  if (!Array.isArray(stores)) stores = [];
 
   let saved = null;
   try {
-    saved = JSON.parse(localStorage.getItem('coles_store_v1') || 'null');
+    saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
   } catch (e) {}
 
-  try {
-    const res = await fetch('/data/stores.json', { cache: 'no-cache' });
-    const list = res.ok ? await res.json() : [];
-    if (Array.isArray(list) && list.length) {
-      sel.innerHTML = '';
-      const frag = document.createDocumentFragment();
-      list.forEach((s) => {
-        const opt = document.createElement('option');
-        const where = [s.suburb, s.state, s.postcode].filter(Boolean).join(' ');
-        opt.value = `${s.name}${s.suburb ? ' — ' + s.suburb : ''}`;
-        opt.textContent = `${s.name}${where ? ` — ${where}` : ''}`;
-        frag.append(opt);
-      });
-      sel.append(frag);
-      if (saved && saved.name) {
-        const match = [...sel.options].find((o) => o.value.startsWith(saved.name));
-        if (match) sel.value = match.value;
-      }
-      return;
-    }
-  } catch (e) {}
+  function applyChoice(store) {
+    hidden.value = storeLabel(store);
+    if (chosen) chosen.textContent = `Collecting from ${storeLabel(store)}`;
+    saveChosenStore(store);
+    list.hidden = true;
+    input.value = store.name;
+    input.setAttribute('aria-expanded', 'false');
+  }
 
   if (saved && saved.name) {
-    const opt = document.createElement('option');
-    opt.value = saved.name;
-    opt.textContent = saved.name;
-    sel.prepend(opt);
-    sel.value = opt.value;
+    hidden.value = `${saved.name}${saved.suburb ? ' — ' + saved.suburb : ''}`;
+    if (chosen) chosen.textContent = `Collecting from ${saved.name}${saved.suburb ? ' — ' + saved.suburb : ''}`;
+    input.value = saved.name;
   }
+
+  if (countEl) {
+    countEl.textContent = stores.length
+      ? `${stores.length} Coles stores offer free Click & Collect — search by suburb, postcode or store name.`
+      : 'Store list unavailable right now.';
+  }
+
+  function render(matches, term) {
+    list.innerHTML = '';
+    if (!matches.length) {
+      const li = document.createElement('li');
+      li.className = 'co-store-empty';
+      li.textContent = term ? `No store matches “${term}”` : 'Type a suburb or postcode';
+      list.append(li);
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      return;
+    }
+    matches.slice(0, 8).forEach((s) => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'co-store-option';
+
+      const main = document.createElement('span');
+      const name = document.createElement('b');
+      name.textContent = s.name;
+      const meta = document.createElement('small');
+      meta.textContent = [s.street, s.suburb, s.state, s.postcode].filter(Boolean).join(', ');
+      main.append(name, meta);
+
+      const tag = document.createElement('em');
+      tag.textContent = s.postcode || '';
+
+      btn.append(main, tag);
+      btn.addEventListener('mousedown', (e) => e.preventDefault());
+      btn.addEventListener('click', () => applyChoice(s));
+      li.append(btn);
+      list.append(li);
+    });
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  function search(term) {
+    const t = String(term || '').trim().toLowerCase();
+    if (!t) {
+      render([], '');
+      return;
+    }
+    const matches = stores.filter((s) =>
+      `${s.name} ${s.suburb} ${s.postcode} ${s.state} ${s.street}`.toLowerCase().includes(t)
+    );
+    render(matches, t);
+  }
+
+  input.addEventListener('input', () => search(input.value));
+  input.addEventListener('focus', () => search(input.value));
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      list.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const first = list.querySelector('.co-store-option');
+      if (first) first.click();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!list.hidden && !e.target.closest('.co-store-picker')) {
+      list.hidden = true;
+      input.setAttribute('aria-expanded', 'false');
+    }
+  });
 }
 
 /* ------------------------------------------------------------------ events */

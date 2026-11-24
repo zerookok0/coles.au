@@ -150,12 +150,24 @@
                 </label>
               </div>
 
-              <label class="co-field co-store" hidden>
+              <div class="co-field co-store" hidden>
                 <span>Collection store</span>
-                <select id="t-store" name="store">
-                  <option>Coles Sydney CBD &ndash; Sydney NSW 2000</option>
-                </select>
-              </label>
+                <div class="co-store-picker">
+                  <input
+                    id="t-store-search"
+                    type="search"
+                    autocomplete="off"
+                    placeholder="Search suburb, postcode or store name"
+                    aria-label="Search collection stores"
+                    aria-expanded="false"
+                    aria-controls="co-store-results"
+                  />
+                  <input id="t-store" name="store" type="hidden" />
+                  <ul id="co-store-results" class="co-store-results" hidden></ul>
+                </div>
+                <p id="co-store-chosen" class="co-store-chosen">No store selected yet</p>
+                <p class="co-hint co-hint-small" id="co-store-count"></p>
+              </div>
             </fieldset>
 
             <!-- ------------------------------------------------ address -->

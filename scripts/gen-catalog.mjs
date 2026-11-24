@@ -665,7 +665,7 @@ try {
   for (const s of stores) {
     if (!s || !s.name || !Number.isFinite(s.lat) || !Number.isFinite(s.lon)) continue;
     // node/way duplicates for the same physical store
-    const key = `${s.name.toLowerCase()}|${s.postcode}|${s.lat.toFixed(2)}|${s.lon.toFixed(2)}`;
+    const key = `${s.name.toLowerCase()}|${s.postcode}`;
     if (seen.has(key)) continue;
     seen.add(key);
     cleaned.push({
