@@ -14,22 +14,23 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 22px;
-  padding-top: 10px;
-  padding-bottom: 9px;
+  gap: 24px;
+  min-height: 80px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .hh-burger { display: none; border: 0; background: none; padding: 6px; line-height: 0; }
-.hh-logo img { width: 112px; height: auto; }
+.hh-logo img { width: 116px; height: auto; }
 
 .hh-search {
   position: relative;
   display: flex;
   align-items: center;
   border: 1.5px solid #cfd2d6;
-  border-radius: 24px;
-  padding: 0 5px 0 16px;
-  height: 44px;
+  border-radius: 26px;
+  padding: 0 5px 0 18px;
+  height: 48px;
   background: #fff;
   min-width: 0;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -41,7 +42,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  font-size: 14.5px;
+  font-size: 15px;
   height: 100%;
 }
 .hh-search input::placeholder { color: #8b9096; }
@@ -101,9 +102,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 8px;
+  padding: 8px 9px;
   border-radius: 9px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #1c1c1c;
   white-space: nowrap;
@@ -140,7 +141,7 @@
 
 /* sub nav */
 .hh-subnav { border-top: 1px solid #ececee; }
-.hh-subnav-row { display: flex; align-items: center; gap: 6px; height: 44px; }
+.hh-subnav-row { display: flex; align-items: center; gap: 4px; height: 67px; }
 .hh-shopwrap { position: relative; }
 .hh-shopbtn {
   display: inline-flex;
@@ -148,14 +149,14 @@
   gap: 9px;
   border: 0;
   background: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  padding: 7px 10px 7px 0;
+  padding: 8px 14px 8px 0;
 }
 .hh-shopbtn:hover { color: var(--red); }
 .hh-sublink {
-  padding: 7px 11px;
-  font-size: 13.5px;
+  padding: 9px 14px;
+  font-size: 14px;
   font-weight: 500;
   color: #1c1c1c;
   border-radius: 8px;
@@ -195,8 +196,8 @@
 }
 .hh-location-row > svg { color: #1d6fa5; flex: none; }
 .hh-location-row div { display: flex; flex-direction: column; line-height: 1.35; }
-.hh-location-row b { font-size: 12.5px; }
-.hh-location-row span { font-size: 12px; color: #3f6785; }
+.hh-location-row b { font-size: 13px; }
+.hh-location-row span { font-size: 12.5px; color: #3f6785; }
 .hh-location-change { margin-left: auto; font-size: 13px; font-weight: 700; color: #1d6fa5; }
 
 /* -------------------------------------------------------------- home: rail */
@@ -229,7 +230,7 @@
 .railnav-circle.is-badge { border: 0; background: transparent; }
 .railnav-item:hover .railnav-circle { border-color: var(--red); }
 .railnav-label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
   text-align: center;
   line-height: 1.25;
@@ -242,78 +243,115 @@
   margin: 10px 0 18px;
   margin-inline: calc(50% - 50vw);
   width: 100vw;
-  min-height: 366px;
   overflow: hidden;
   color: #fff;
+}
+.bighero.is-light { color: #1b1b1b; }
+
+.bighero-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
-  align-items: center;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: stretch;
+  min-height: 440px;
 }
-.bighero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.bighero-scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.66) 0%, rgba(0, 0, 0, 0.42) 42%, rgba(0, 0, 0, 0.05) 72%);
-}
-.bighero.has-photo .bighero-copy { text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35); }
+
 .bighero-copy {
   position: relative;
   z-index: 2;
-  padding: 48px 28px 64px max(24px, calc(50vw - 620px));
-  max-width: 660px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 24px 52px max(48px, calc(50vw - 672px));
+  max-width: 620px;
 }
-.bighero-copy h2 { font-size: clamp(24px, 3vw, 40px); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
-.bighero-copy p { margin-top: 12px; font-size: 15px; max-width: 440px; opacity: 0.95; }
+.bighero-roundel { width: 78px; height: 78px; margin-bottom: 16px; object-fit: contain; }
+.bighero-badge {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: #fff;
+  color: #123;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.55), 0 6px 18px rgba(0, 0, 0, 0.12);
+  padding: 10px;
+}
+.bighero-copy h2 {
+  font-size: clamp(28px, 3.1vw, 44px);
+  font-weight: 900;
+  line-height: 1.07;
+  letter-spacing: -0.02em;
+}
+.bighero-copy p { margin-top: 14px; font-size: 16px; line-height: 1.45; max-width: 440px; opacity: 0.92; }
+
 .bighero-cta {
-  display: inline-block;
-  margin-top: 18px;
-  background: var(--yellow);
-  color: #1b1b1b;
+  align-self: flex-start;
+  margin-top: 20px;
   font-weight: 800;
   font-size: 14.5px;
   padding: 12px 24px;
   border-radius: 999px;
+  transition: filter 0.15s ease;
 }
-.bighero-cta:hover { background: #ffdf4d; }
+.bighero-cta:hover { filter: brightness(0.94); }
+.bighero.is-light .bighero-cta { background: var(--red); color: #fff; }
+.bighero.is-dark .bighero-cta { background: var(--yellow); color: #1b1b1b; }
 
 .bighero-art {
   position: relative;
   z-index: 1;
-  height: 100%;
-  min-height: 366px;
+  min-height: 440px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding-right: max(24px, calc(50vw - 620px));
+}
+.bighero-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .bighero-shot {
-  width: 30%;
-  max-width: 190px;
-  filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35));
+  width: 33%;
+  max-width: 200px;
   object-fit: contain;
-  background: #fff;
-  border-radius: 14px;
-  padding: 10px;
+  /* catalogue JPEGs come on white; multiplying blends them into the brand
+     colour so they read as cut-outs like the real banner artwork */
+  mix-blend-mode: multiply;
 }
-.bighero-shot.shot-1 { transform: rotate(-6deg) translateY(12px); }
-.bighero-shot.shot-2 { transform: translateY(-10px) scale(1.12); z-index: 2; }
-.bighero-shot.shot-3 { transform: rotate(7deg) translateY(16px); }
+.bighero-shot.shot-1 { transform: rotate(-6deg) translateY(10px); }
+.bighero-shot.shot-2 { transform: translateY(-8px) scale(1.1); z-index: 2; }
+.bighero-shot.shot-3 { transform: rotate(7deg) translateY(14px); }
 
 .bighero-controls {
   position: absolute;
-  right: max(20px, calc(50vw - 620px));
-  bottom: 18px;
+  right: max(16px, calc(50vw - 672px));
+  bottom: 16px;
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.92);
+  gap: 8px;
+  background: #fff;
   color: #1b1b1b;
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 6px 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
 }
-.bighero-controls > button { border: 0; background: none; font-size: 13px; line-height: 1; }
+.bighero-controls > button {
+  border: 0;
+  background: none;
+  font-size: 14px;
+  line-height: 1;
+  padding: 2px 4px;
+  color: inherit;
+}
 .bighero-dots { display: flex; gap: 6px; }
 .bighero-dots button {
   width: 7px;
@@ -323,7 +361,7 @@
   border-radius: 50%;
   background: #cfcfcf;
 }
-.bighero-dots button.is-active { background: #1b1b1b; width: 18px; border-radius: 999px; }
+.bighero-dots button.is-active { background: #1b1b1b; width: 16px; border-radius: 999px; }
 
 /* ------------------------------------------------------------- home: qtiles */
 .qtiles {
@@ -361,7 +399,7 @@
 /* -------------------------------------------------------------- home: rows */
 .frow { margin-bottom: 24px; }
 .frow-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
-.frow-head h2 { font-size: 19px; font-weight: 800; }
+.frow-head h2 { font-size: 20px; font-weight: 800; }
 .frow-more { display: inline-flex; align-items: center; gap: 2px; font-size: 13.5px; font-weight: 700; color: var(--red); }
 .frow-track {
   display: grid;
@@ -388,7 +426,7 @@
   gap: 14px;
   margin-bottom: 16px;
 }
-.promoband-head h2 { font-size: 18px; font-weight: 800; }
+.promoband-head h2 { font-size: 19px; font-weight: 800; }
 .promoband-more { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 700; color: #fff; opacity: 0.85; }
 .promoband .pcard-title { color: #fff; }
 

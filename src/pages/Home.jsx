@@ -51,40 +51,58 @@ function HeroBanner({ items }) {
 
   if (!items || !items.length) return null;
   const hero = items[index];
+  const offerBadge = (() => {
+    if (hero.centerImage) return '';
+    const text = `${hero.title} ${hero.description || ''}`;
+    const m = text.match(/(\d+\s*for\s*\$?\d+(?:\.\d+)?|\d+%\s*off|\$\d+(?:\.\d+)?\s*off|\d+%\s*discount)/i);
+    return m ? m[0].replace(/\s+/g, ' ') : '';
+  })();
 
   return (
     <section
-      className={`bighero ${hero.bgImage ? 'has-photo' : ''}`}
+      className={`bighero ${hero.light ? 'is-light' : 'is-dark'}`}
       style={{ background: hero.bg }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
     >
-      {hero.bgImage ? (
-        <>
-          <img className="bighero-bg" src={hero.bgImage} alt="" onError={IMG_FALLBACK} />
-          <span className="bighero-scrim" aria-hidden="true" />
-        </>
-      ) : null}
+      <div className="bighero-inner">
+        <div className="bighero-copy">
+          {hero.centerImage ? (
+            <img className="bighero-roundel" src={hero.centerImage} alt="" onError={IMG_FALLBACK} />
+          ) : offerBadge ? (
+            <span className="bighero-badge">{offerBadge}</span>
+          ) : null}
+          <h2>{hero.title}</h2>
+          {hero.description ? <p>{hero.description}</p> : null}
+          <Link to={hero.ctaHref} className="bighero-cta">
+            {hero.ctaLabel}
+          </Link>
+        </div>
 
-      <div className="bighero-copy">
-        <h2>{hero.title}</h2>
-        {hero.description ? <p>{hero.description}</p> : null}
-        <Link to={hero.ctaHref} className="bighero-cta">
-          {hero.ctaLabel}
-        </Link>
+        <div className="bighero-art" aria-hidden="true">
+          {hero.bgImage ? (
+            <img className="bighero-photo" src={hero.bgImage} alt="" onError={IMG_FALLBACK} />
+          ) : (
+            hero.products.slice(0, 3).map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt=""
+                className={`bighero-shot shot-${i + 1}`}
+                loading="lazy"
+                onError={IMG_FALLBACK}
+              />
+            ))
+          )}
+        </div>
       </div>
 
-      {!hero.bgImage ? (
-        <div className="bighero-art" aria-hidden="true">
-          {hero.products.slice(0, 3).map((src, i) => (
-            <img key={src} src={src} alt="" className={`bighero-shot shot-${i + 1}`} loading="lazy" onError={IMG_FALLBACK} />
-          ))}
-        </div>
-      ) : null}
-
       <div className="bighero-controls">
-        <button type="button" aria-label="Pause" onClick={() => setPaused((p) => !p)}>
+        <button type="button" aria-label="Previous slide" onClick={() => setIndex((i) => (i - 1 + items.length) % items.length)}>
+          ‹
+        </button>
+        <button type="button" aria-label={paused ? 'Play' : 'Pause'} onClick={() => setPaused((p) => !p)}>
           {paused ? '▶' : '❙❙'}
         </button>
         <span className="bighero-dots">

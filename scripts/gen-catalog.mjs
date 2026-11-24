@@ -476,6 +476,18 @@ function railImage(item) {
   };
 }
 
+/** Relative luminance of a #rrggbb colour, to pick black or white copy. */
+function isLight(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
+  if (!m) return false;
+  const n = parseInt(m[1], 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const lin = (c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) > 0.55;
+}
+
 const home = homeRaw
   ? {
       source: homeRaw.source,
@@ -484,16 +496,20 @@ const home = homeRaw
         const art = railImage(c);
         return { title: c.title, href: '/shop', image: art.image, kind: art.kind, tint: art.tint };
       }),
-      heroes: (homeRaw.heroes || []).map((h, i) => ({
-        title: h.title,
-        description: h.description,
-        bg: h.bg || '#E01A22',
-        ctaLabel: h.ctaLabel || 'Shop now',
-        ctaHref: '/shop?filter=special',
-        bgImage: h.bgImage || '',
-        centerImage: h.centerImage || '',
-        products: heroShots(h.title, i)
-      })),
+      heroes: (homeRaw.heroes || []).map((h, i) => {
+        const light = isLight(h.bg);
+        return {
+          title: h.title,
+          description: h.description,
+          bg: h.bg || '#E01A22',
+          light,
+          ctaLabel: h.ctaLabel || 'Shop now',
+          ctaHref: '/shop?filter=special',
+          bgImage: h.bgImage || '',
+          centerImage: h.centerImage || '',
+          products: heroShots(h.title, i)
+        };
+      }),
       quadTiles: (homeRaw.quadTiles || []).map((q) => ({
         heading: q.heading,
         description: q.description,
