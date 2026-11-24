@@ -1,246 +1,261 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import Carousel from '../components/Carousel.jsx';
 import ProductCard from '../components/ProductCard.jsx';
-import { ProductRail } from '../components/Layout.jsx';
 import Icon from '../components/Icon.jsx';
-import {
-  BESTSELLERS,
-  CATEGORIES,
-  CATALOG_SIZE,
-  DEPARTMENTS,
-  PRODUCTS,
-  SPECIALS,
-  getDepartment,
-  money,
-  productsInDepartment
-} from '../data/catalog.js';
-import { SITE, PROMO } from '../config.js';
+import { HOME, PRODUCTS, CATALOG_SIZE, getProduct, money } from '../data/catalog.js';
+import { SITE } from '../config.js';
 
-const FRESH_DEPTS = ['fruit-veg', 'meat-seafood', 'bakery', 'dairy-eggs', 'frozen', 'drinks'];
+const IMG_FALLBACK = (e) => {
+  if (!e.currentTarget.dataset.fallback) {
+    e.currentTarget.dataset.fallback = '1';
+    e.currentTarget.src = '/img/placeholder.svg';
+  }
+};
 
-export default function Home() {
-  const specialsRail = useMemo(() => SPECIALS.slice(0, 14), []);
-  const popular = useMemo(() => [...PRODUCTS].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 14), []);
+function Rail({ items }) {
+  if (!items || !items.length) return null;
+  return (
+    <section className="railnav" aria-label="Shortcuts">
+      <div className="railnav-track">
+        {items.map((item) => (
+          <Link key={item.title} to={item.href} className="railnav-item">
+            <span className="railnav-circle">
+              <img src={item.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
+            </span>
+            <span className="railnav-label">{item.title}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-  const fresh = useMemo(() => {
-    return FRESH_DEPTS.map((id) => {
-      const dept = getDepartment(id);
-      const items = productsInDepartment(id).slice(0, 4);
-      if (!dept || items.length === 0) return null;
-      return {
-        dept,
-        items,
-        count: dept.count,
-        from: Math.min(...items.map((p) => p.price))
-      };
-    }).filter(Boolean);
-  }, []);
+function HeroBanner({ items }) {
+  const [index, setIndex] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
 
-  const promoPicks = useMemo(() => {
-    const pantry = PRODUCTS.find((p) => p.dept === 'pantry' && p.images && p.images.length);
-    const fruit = PRODUCTS.find((p) => p.dept === 'fruit-veg' && p.images && p.images.length);
-    return { pantry, fruit };
-  }, []);
+  React.useEffect(() => {
+    if (!items || items.length < 2 || paused) return undefined;
+    const t = setInterval(() => setIndex((i) => (i + 1) % items.length), 7000);
+    return () => clearInterval(t);
+  }, [items, paused]);
 
-  const missionArt = useMemo(() => PRODUCTS.slice(0, 3), []);
-  const promoProgress = 0;
-  const toGo = 10000;
+  if (!items || !items.length) return null;
+  const hero = items[index];
 
   return (
-    <div className="home">
+    <section
+      className={`bighero ${hero.bgImage ? 'has-photo' : ''}`}
+      style={{ background: hero.bg }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      aria-roledescription="carousel"
+    >
+      {hero.bgImage ? (
+        <>
+          <img className="bighero-bg" src={hero.bgImage} alt="" onError={IMG_FALLBACK} />
+          <span className="bighero-scrim" aria-hidden="true" />
+        </>
+      ) : null}
+
+      <div className="bighero-copy">
+        <h2>{hero.title}</h2>
+        {hero.description ? <p>{hero.description}</p> : null}
+        <Link to={hero.ctaHref} className="bighero-cta">
+          {hero.ctaLabel}
+        </Link>
+      </div>
+
+      {!hero.bgImage ? (
+        <div className="bighero-art" aria-hidden="true">
+          {hero.products.slice(0, 3).map((src, i) => (
+            <img key={src} src={src} alt="" className={`bighero-shot shot-${i + 1}`} loading="lazy" onError={IMG_FALLBACK} />
+          ))}
+        </div>
+      ) : null}
+
+      <div className="bighero-controls">
+        <button type="button" aria-label="Pause" onClick={() => setPaused((p) => !p)}>
+          {paused ? '▶' : '❙❙'}
+        </button>
+        <span className="bighero-dots">
+          {items.map((h, i) => (
+            <button
+              key={h.title}
+              type="button"
+              aria-label={`Slide ${i + 1}`}
+              className={i === index ? 'is-active' : ''}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </span>
+        <button type="button" aria-label="Next slide" onClick={() => setIndex((i) => (i + 1) % items.length)}>
+          ›
+        </button>
+      </div>
+    </section>
+  );
+}
+
+export default function Home() {
+  const home = HOME || {};
+  const rows = home.rows || [];
+  const quad = home.quadTiles || [];
+  const cards = home.cards || [];
+
+  const rowProducts = useMemo(() => {
+    const ids = rows[0] ? rows[0].productIds : [];
+    const resolved = ids.map((id) => getProduct(id)).filter(Boolean);
+    return resolved.length ? resolved : PRODUCTS.filter((p) => p.was).slice(0, 12);
+  }, [rows]);
+
+  // Spread the "popular" rail across the whole catalogue instead of one aisle.
+  const moreProducts = useMemo(() => {
+    const step = Math.max(1, Math.floor(PRODUCTS.length / 14));
+    const out = [];
+    for (let i = 0; i < PRODUCTS.length && out.length < 14; i += step) out.push(PRODUCTS[i]);
+    return out;
+  }, []);
+
+  return (
+    <div className="home2">
       <div className="container">
-        <Carousel onBrowse={() => { window.location.href = '/shop?filter=special'; }} />
+        <Rail items={home.catRail} />
+        <HeroBanner items={home.heroes} />
 
-        <section className="quicktiles" aria-label="Service highlights">
-          <Link to="/delivery" className="quicktile">
-            <Icon name="truck" size={26} />
-            <b>Free delivery</b>
-            <span>on orders over $50</span>
-          </Link>
-          <Link to="/delivery" className="quicktile">
-            <Icon name="clock" size={26} />
-            <b>Same-day delivery</b>
-            <span>order before 2pm</span>
-          </Link>
-          <Link to="/click-collect" className="quicktile">
-            <Icon name="store" size={26} />
-            <b>Click &amp; Collect</b>
-            <span>ready in 2 hours</span>
-          </Link>
-          <Link to="/shop?filter=special" className="quicktile">
-            <Icon name="tag" size={26} />
-            <b>{SPECIALS.length.toLocaleString()} specials</b>
-            <span>this week only</span>
-          </Link>
-        </section>
-
-        <section className="catgrid" aria-label="Shop by department">
-          <div className="section-head">
-            <h2>Shop by department</h2>
-            <Link to="/shop" className="section-link">
-              All {CATEGORIES.length} categories
-              <Icon name="chevron" size={14} />
-            </Link>
-          </div>
-          <div className="catgrid-inner">
-            {DEPARTMENTS.map((d) => (
-              <Link key={d.id} to={`/shop?dept=${d.id}`} className="cattile">
-                <img
-                  src={d.image}
-                  alt=""
-                  width="400"
-                  height="400"
-                  loading="lazy"
-                  onError={(e) => {
-                    if (!e.currentTarget.dataset.fallback) {
-                      e.currentTarget.dataset.fallback = '1';
-                      e.currentTarget.src = '/img/placeholder.svg';
-                    }
-                  }}
-                />
-                <span>
-                  <b>{d.name}</b>
-                  <small>{d.count.toLocaleString()} products</small>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mission" aria-label="Weekly reward">
-          <div className="mission-copy">
-            <span className="mission-kicker">Weekly reward</span>
-            <h2>Spend $100 and get $10 off your next shop</h2>
-            <p>
-              Add <b>{money(toGo)}</b> to your cart to unlock the $10 reward — it applies automatically at checkout.
-            </p>
-            <div className="mission-bar">
-              <i style={{ width: `${promoProgress}%` }} />
-            </div>
-            <div className="mission-meta">
-              <span>{promoProgress}% complete</span>
-              <span>Free delivery over {money(SITE.freeDeliveryThreshold)}</span>
-            </div>
-            <Link to="/shop" className="btn btn-primary">
-              Keep shopping
-            </Link>
-          </div>
-          <div className="mission-art">
-            {missionArt.map((p) => (
-              <img
-                key={p.id}
-                src={p.image}
-                alt=""
-                width="600"
-                height="600"
-                loading="lazy"
-                onError={(e) => {
-                  if (!e.currentTarget.dataset.fallback) {
-                    e.currentTarget.dataset.fallback = '1';
-                    e.currentTarget.src = '/img/placeholder.svg';
-                  }
-                }}
-              />
-            ))}
-          </div>
-        </section>
-
-        <ProductRail
-          title="Down Down — prices locked"
-          subtitle="Hundreds of everyday items at permanently lower prices"
-          viewAllTo="/shop?filter=special"
-          products={specialsRail}
-          renderCard={(p) => <ProductCard key={p.id} product={p} />}
-        />
-
-        <section className="duo">
-          <Link to="/shop?dept=pantry" className="duo-card duo-red">
-            <div>
-              <span className="duo-kicker">Pantry stock up</span>
-              <h3>Save up to 40% on big brands</h3>
-              <p>Pasta, cereal, sauces and snacks — all in one shop.</p>
-              <span className="duo-cta">Shop pantry →</span>
-            </div>
-            {promoPicks.pantry ? <img src={promoPicks.pantry.image} alt="" loading="lazy" /> : null}
-          </Link>
-
-          <Link to="/shop?dept=fruit-veg" className="duo-card duo-green">
-            <div>
-              <span className="duo-kicker">Fresh &amp; local</span>
-              <h3>Fruit and veg picked this week</h3>
-              <p>Australian grown, delivered fresh or ready to collect.</p>
-              <span className="duo-cta">Shop fresh →</span>
-            </div>
-            {promoPicks.fruit ? <img src={promoPicks.fruit.image} alt="" loading="lazy" /> : null}
-          </Link>
-        </section>
-
-        <ProductRail
-          title="Most popular this week"
-          subtitle={`Loved by shoppers across ${CATALOG_SIZE.toLocaleString()} products in store`}
-          viewAllTo="/shop"
-          products={popular}
-          renderCard={(p) => <ProductCard key={p.id} product={p} />}
-        />
-
-        <section className="freshrow" aria-label="Fresh categories">
-          {fresh.map(({ dept, items, count, from }) => (
-            <Link key={dept.id} to={`/shop?dept=${dept.id}`} className="freshcard">
-              <div className="freshcard-media">
-                {items.slice(0, 3).map((p) => (
-                  <img key={p.id} src={p.image} alt="" loading="lazy" />
-                ))}
-              </div>
-              <b>{dept.name}</b>
-              <span>
-                {count.toLocaleString()} products from {money(from)}
-              </span>
+        <section className="qtiles" aria-label="More ways to save">
+          {quad.map((q) => (
+            <Link key={q.heading} to={q.href} className="qtile">
+              {q.roundel ? <img className="qtile-roundel" src={q.roundel} alt="" loading="lazy" onError={IMG_FALLBACK} /> : null}
+              <h3>{q.heading}</h3>
+              <p>{q.description}</p>
+              <span className="qtile-cta">{q.ctaLabel}</span>
+              <img className="qtile-photo" src={q.photo} alt="" loading="lazy" onError={IMG_FALLBACK} />
             </Link>
           ))}
         </section>
 
-        <ProductRail
-          title="Bestsellers you can trust"
-          subtitle="Top rated by thousands of Coles shoppers"
-          viewAllTo="/shop"
-          products={BESTSELLERS.slice(0, 14)}
-          renderCard={(p) => <ProductCard key={p.id} product={p} />}
-        />
+        {rows[0] ? (
+          <section className="frow">
+            <div className="frow-head">
+              <h2>{rows[0].heading}</h2>
+              <Link to={rows[0].ctaHref} className="frow-more">
+                {rows[0].ctaLabel}
+                <Icon name="chevron" size={14} />
+              </Link>
+            </div>
+            <div className="frow-track">
+              {rowProducts.slice(0, 14).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
-        <section className="promo-strip">
-          <div>
-            <h2>{PROMO.headline}</h2>
-            <p>
-              Free delivery over {money(SITE.freeDeliveryThreshold)} · Same-day delivery · Free Click &amp; Collect in 2
-              hours
-            </p>
-          </div>
-          <Link to="/shop?filter=special" className="btn btn-light">
-            Shop the specials
-          </Link>
+        <section className="promocards" aria-label="Offers">
+          {cards.slice(0, 5).map((c) => (
+            <Link key={c.title} to={c.href} className="pcard">
+              <div className="pcard-media">
+                <img src={c.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
+                {c.savePercentage ? (
+                  <span className="pcard-roundel">
+                    <b>{c.savePercentage}%</b>
+                    <small>off</small>
+                  </span>
+                ) : null}
+              </div>
+              <p className="pcard-title">{c.title}</p>
+            </Link>
+          ))}
         </section>
+
+        {home.promo ? (
+          <section
+            className="hp-banner"
+            style={{
+              background: home.promo.image ? '#E00A12' : home.promo.bg || '#E00A12',
+              backgroundImage: home.promo.image ? `url(${home.promo.image})` : undefined
+            }}
+          >
+            <div className="hp-banner-copy">
+              <h2>{home.promo.heading}</h2>
+              <p>{home.promo.description}</p>
+              <Link to={home.promo.href} className="hp-banner-cta">
+                {home.promo.ctaLabel}
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
+        <section className="frow">
+          <div className="frow-head">
+            <h2>Popular this week</h2>
+            <Link to="/shop" className="frow-more">
+              View all
+              <Icon name="chevron" size={14} />
+            </Link>
+          </div>
+          <div className="frow-track">
+            {moreProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+
+        {home.recipes ? (
+          <section className="recipes">
+            <div className="frow-head">
+              <h2>{home.recipes.heading}</h2>
+              <Link to="/shop" className="frow-more">
+                View all
+                <Icon name="chevron" size={14} />
+              </Link>
+            </div>
+            <div className="recipes-grid">
+              {home.recipes.cards.map((r) => (
+                <Link key={r.title} to="/shop" className="recipe">
+                  <img src={r.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
+                  <b>{r.title}</b>
+                  <span>{r.meta}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {home.appBanner ? (
+          <section className="appbanner">
+            <div>
+              <h2>{home.appBanner.heading}</h2>
+              <p>{home.appBanner.description}</p>
+              <Link to={home.appBanner.href} className="appbanner-cta">
+                Get the app
+              </Link>
+            </div>
+            {home.appBanner.image ? <img src={home.appBanner.image} alt="" loading="lazy" onError={IMG_FALLBACK} /> : null}
+          </section>
+        ) : null}
 
         <section className="benefits">
           <div>
             <Icon name="truck" size={30} />
             <b>Free delivery over {money(SITE.freeDeliveryThreshold)}</b>
-            <p>Flat $5 delivery under the threshold. No membership, no minimum basket tricks.</p>
+            <p>Flat $5 delivery under the threshold. No membership needed.</p>
           </div>
           <div>
             <Icon name="clock" size={30} />
             <b>Same-day delivery</b>
-            <p>Order before 2pm and choose an evening window. We text you when the driver is close.</p>
+            <p>Order before 2pm and choose an evening window.</p>
           </div>
           <div>
             <Icon name="store" size={30} />
             <b>Free Click &amp; Collect</b>
-            <p>Ready in two hours at 800+ stores, with chilled and frozen items kept cold until pickup.</p>
+            <p>Ready in two hours at 800+ stores.</p>
           </div>
           <div>
             <Icon name="shield" size={30} />
-            <b>Secure card payment</b>
-            <p>Card details are encrypted end to end. No cash on delivery, no stored card numbers.</p>
+            <b>{CATALOG_SIZE.toLocaleString()} products</b>
+            <p>Live Coles range with this week&apos;s prices.</p>
           </div>
         </section>
       </div>

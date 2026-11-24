@@ -332,10 +332,163 @@ HEROES.forEach((h, i) => {
   fs.writeFileSync(path.join(OUT_IMG, 'hero', i + 1 + '.svg'), heroSvg(i + 1, h.hue, h.art));
 });
 
+/* --------------------------------------------------------------- home page */
+const HOME_SRC = path.join(ROOT, 'scrape', 'raw', 'home.json');
+let homeRaw = null;
+try {
+  homeRaw = JSON.parse(fs.readFileSync(HOME_SRC, 'utf8'));
+} catch (e) {
+  homeRaw = null;
+}
+
+const byId = new Map(products.map((p) => [p.id, p]));
+const withImage = products.filter((p) => p.image);
+
+function pickFromCategory(...keywords) {
+  for (const kw of keywords) {
+    const hit = withImage.find((p) => p.cat.includes(kw) || p.dept.includes(kw));
+    if (hit) return hit;
+  }
+  return withImage[0];
+}
+
+/** Deterministic pick so every rail label gets its own photo. */
+function photoFromDept(dept, seedText) {
+  const pool = withImage.filter((p) => p.dept === dept);
+  if (!pool.length) return withImage[0].image;
+  return pool[hash(seedText) % pool.length].image;
+}
+
+/** Map a Coles rail label ("Meat & Seafood", "Bonus Credit Products") to a photo. */
+function railPhoto(title) {
+  const t = String(title || '').toLowerCase();
+  const map = [
+    [/meat|seafood/, 'meat-seafood'],
+    [/fresh special|fruit|veg/, 'fruit-veg'],
+    [/bakery/, 'bakery'],
+    [/dairy|egg/, 'dairy-eggs'],
+    [/deli/, 'deli-chilled'],
+    [/frozen/, 'frozen'],
+    [/pantry/, 'pantry'],
+    [/drink/, 'drinks'],
+    [/household|clean/, 'household'],
+    [/baby/, 'baby'],
+    [/pet/, 'pet'],
+    [/health|beauty/, 'health-beauty'],
+    [/liquor/, 'beer-wine-spirits'],
+    [/specials/, 'pantry'],
+    [/down down/, 'snacks'],
+    [/new year|christmas/, 'drinks'],
+    [/bought before/, 'dairy-eggs']
+  ];
+  for (const [re, dept] of map) {
+    if (re.test(t)) return photoFromDept(dept, 'rail:' + t);
+  }
+  return photoFromDept('pantry', 'rail:' + t);
+}
+
+/** Map a content-card title to a product photo (brand token match, else a pool pick). */
+function cardPhoto(title) {
+  const t = String(title || '').toLowerCase();
+  const words = t.split(/[^a-z0-9]+/).filter((w) => w.length > 3);
+  const brandHit =
+    withImage.find((p) => p.brand && words.includes(p.brand.toLowerCase())) ||
+    withImage.find((p) => {
+      if (!p.brand) return false;
+      const brandWords = p.brand.toLowerCase().split(/\s+/);
+      return brandWords.some((bw) => bw.length > 3 && words.includes(bw));
+    });
+  if (brandHit) return brandHit.image;
+  return photoFromDept('pantry', 'card:' + t);
+}
+
+/** Pick hero collage shots that match the banner copy. */
+function heroShots(title, i) {
+  const t = String(title || '').toLowerCase();
+  const map = [
+    [/sausage|burger|meat|beef|chicken|lamb|bacon/, 'meat-seafood'],
+    [/pet|vita/, 'pet'],
+    [/knife|kitchen|cook|appliance|credit/, 'home-lifestyle'],
+    [/delivery|shop|special/, 'fruit-veg']
+  ];
+  let dept = null;
+  for (const [re, d] of map) {
+    if (re.test(t)) {
+      dept = d;
+      break;
+    }
+  }
+  const pool = dept ? withImage.filter((p) => p.dept === dept) : withImage;
+  if (!pool.length) return [];
+  const start = (i * 37) % Math.max(1, pool.length - 3);
+  return pool.slice(start, start + 3).map((p) => p.image);
+}
+
+const home = homeRaw
+  ? {
+      source: homeRaw.source,
+      nav: homeRaw.nav,
+      catRail: (homeRaw.catRail || []).map((c) => ({
+        title: c.title,
+        href: '/shop',
+        image: c.image || railPhoto(c.title)
+      })),
+      heroes: (homeRaw.heroes || []).map((h, i) => ({
+        title: h.title,
+        description: h.description,
+        bg: h.bg || '#E01A22',
+        ctaLabel: h.ctaLabel || 'Shop now',
+        ctaHref: '/shop?filter=special',
+        bgImage: h.bgImage || '',
+        centerImage: h.centerImage || '',
+        products: heroShots(h.title, i)
+      })),
+      quadTiles: (homeRaw.quadTiles || []).map((q) => ({
+        heading: q.heading,
+        description: q.description,
+        ctaLabel: q.ctaLabel || 'Shop now',
+        href: '/shop?filter=special',
+        bg: q.bg || '',
+        roundel: q.roundel || '',
+        photo: cardPhoto(q.heading)
+      })),
+      rows: (homeRaw.rows || []).map((r) => ({
+        heading: r.heading,
+        subheading: r.subheading,
+        ctaLabel: r.ctaLabel || 'View all',
+        ctaHref: '/shop?filter=special',
+        productIds: (r.productIds || []).map(String).filter((id) => byId.has(id))
+      })),
+      cards: (homeRaw.cards || []).map((c) => ({
+        title: c.title,
+        href: '/shop?filter=special',
+        image: c.image || cardPhoto(c.title),
+        savePercentage: c.savePercentage || ''
+      })),
+      promo: homeRaw.promo
+        ? { heading: homeRaw.promo.heading, description: homeRaw.promo.description, ctaLabel: homeRaw.promo.ctaLabel, href: '/delivery', bg: homeRaw.promo.image ? '' : homeRaw.promo.bg, image: homeRaw.promo.image || '' }
+        : null,
+      appBanner: homeRaw.appBanner
+        ? { heading: homeRaw.appBanner.heading, description: homeRaw.appBanner.description, image: homeRaw.appBanner.image || '', href: '/contact' }
+        : null,
+      recipes: homeRaw.recipes
+        ? {
+            heading: homeRaw.recipes.heading,
+            cards: (homeRaw.recipes.cards || []).slice(0, 6).map((c, i) => ({
+              title: c.title,
+              meta: c.meta,
+              image: withImage[(i * 97) % withImage.length].image
+            }))
+          }
+        : null
+    }
+  : null;
+
 const catalog = {
   generatedAt: new Date().toISOString().slice(0, 10),
   currency: 'AUD',
   source: 'coles.com.au (archived captures)',
+  home,
   departments,
   categories,
   heroes: HEROES.map((h, i) => ({

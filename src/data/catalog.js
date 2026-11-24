@@ -19,6 +19,7 @@ export const PRODUCTS = DATA.products || [];
 export const CATEGORIES = DATA.categories || [];
 export const DEPARTMENTS = DATA.departments || [];
 export const HEROES = DATA.heroes || [];
+export const HOME = DATA.home || null;
 
 const productById = new Map(PRODUCTS.map((p) => [p.id, p]));
 const productBySlug = new Map(PRODUCTS.map((p) => [p.slug, p]));

@@ -14,7 +14,7 @@ async function boot() {
   const root = document.getElementById('root');
 
   try {
-    const res = await fetch('/data/catalog.json', { cache: 'force-cache' });
+    const res = await fetch('/data/catalog.json', { cache: 'no-cache' });
     window.__CATALOG__ = res.ok ? await res.json() : { products: [], categories: [], departments: [], heroes: [] };
   } catch (e) {
     window.__CATALOG__ = { products: [], categories: [], departments: [], heroes: [] };
