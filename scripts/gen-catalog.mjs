@@ -255,7 +255,7 @@ if (fs.existsSync(OVERRIDES)) {
       if (o.badge) existing.badge = o.badge;
       if (image) {
         existing.image = image;
-        existing.images = [image];
+        existing.images = Array.isArray(o.images) && o.images.length ? o.images : [image];
       }
       if (deptId) existing.dept = deptId;
       if (catId) {
@@ -287,7 +287,7 @@ if (fs.existsSync(OVERRIDES)) {
       art: ['fruit-veg', 'meat-seafood', 'deli-chilled', 'bakery'].includes(deptId) ? 'fresh' : 'pack',
       organic: /organic/i.test(o.name || ''),
       image,
-      images: [image]
+      images: Array.isArray(o.images) && o.images.length ? o.images : [image]
     };
     if (catId) catNames.set(catId, o.cat);
     products.push(p);

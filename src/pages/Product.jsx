@@ -75,15 +75,23 @@ export default function Product() {
   const description = descriptionFor(product);
   const nutrition = nutritionFor(product);
 
-  // Real Coles catalogues expose one hero photo per SKU, so the gallery shows
-  // that photo at three magnifications (front / detail / close-up) instead of
-  // inventing shots that do not exist.
+  // Real Coles catalogues expose one hero photo per SKU; where a product has
+  // several shots (or a supplied override image) each becomes its own view,
+  // otherwise the single photo is shown at three magnifications.
   const views = useMemo(() => {
-    const src = product.images[0];
+    const srcs = (product.images && product.images.length ? product.images : [product.image]).filter(Boolean);
+    if (srcs.length >= 3) return srcs.slice(0, 3).map((src) => ({ src, mode: 'front', label: 'Product photo' }));
+    if (srcs.length === 2) {
+      return [
+        { src: srcs[0], mode: 'front', label: 'Front of pack' },
+        { src: srcs[1], mode: 'front', label: 'Additional photo' },
+        { src: srcs[0], mode: 'zoom', label: 'Detail' }
+      ];
+    }
     return [
-      { src, mode: 'front', label: 'Front of pack' },
-      { src, mode: 'zoom', label: 'Detail' },
-      { src, mode: 'close', label: 'Close-up' }
+      { src: srcs[0], mode: 'front', label: 'Front of pack' },
+      { src: srcs[0], mode: 'zoom', label: 'Detail' },
+      { src: srcs[0], mode: 'close', label: 'Close-up' }
     ];
   }, [product]);
 

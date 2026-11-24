@@ -23,7 +23,11 @@
       "was": 982,
       "unit": "$0.66 per 1L",
       "badge": "Special",
-      "image": "https://productimages.coles.com.au/productimages/8/8150288.jpg",
+      "image": "/img/products/8150288-2pack.jpg",
+      "images": [
+        "/img/products/8150288-2pack.jpg",
+        "https://productimages.coles.com.au/productimages/8/8150288.jpg"
+      ],
       "dept": "Dairy & Eggs",
       "cat": "Milk"
     }
