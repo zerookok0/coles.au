@@ -1,0 +1,31 @@
+{
+  "_comment": "Manual products layered on top of the harvested catalogue. Prices in cents. dept/cat name existing department and shelf so the SKU lands in the right navigation.",
+  "products": [
+    {
+      "id": "7758634",
+      "brand": "Quilton",
+      "name": "Quilton Toilet Paper Classic White 20 Pack 3600 Sheets",
+      "size": "20 Pack · 3600 sheets",
+      "price": 539,
+      "was": 1150,
+      "unit": "$0.15 per 100 sheets",
+      "badge": "Special",
+      "image": "https://productimages.coles.com.au/productimages/7/7758634.jpg",
+      "dept": "Household",
+      "cat": "Toilet Paper, Tissues & Paper Towels"
+    },
+    {
+      "id": "8150288",
+      "brand": "Coles",
+      "name": "Coles Full Cream Milk 3L 2 Pack",
+      "size": "3L × 2 (6L)",
+      "price": 395,
+      "was": 982,
+      "unit": "$0.66 per 1L",
+      "badge": "Special",
+      "image": "https://productimages.coles.com.au/productimages/8/8150288.jpg",
+      "dept": "Dairy & Eggs",
+      "cat": "Milk"
+    }
+  ]
+}

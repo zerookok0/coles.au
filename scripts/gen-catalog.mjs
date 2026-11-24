@@ -219,6 +219,88 @@ for (const d of drafts) {
 
 products.sort((a, b) => a.name.localeCompare(b.name));
 
+/* ------------------------------------------------------- manual overrides */
+const OVERRIDES = path.join(ROOT, 'scrape', 'raw', 'overrides.json');
+if (fs.existsSync(OVERRIDES)) {
+  let list = [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(OVERRIDES, 'utf8'));
+    list = Array.isArray(parsed) ? parsed : parsed.products || [];
+  } catch (e) {
+    console.log('[gen] overrides.json is not valid JSON:', e.message);
+  }
+
+  const index = new Map(products.map((p) => [p.id, p]));
+  let added = 0;
+  let patched = 0;
+
+  for (const o of list) {
+    if (!o || !o.id) continue;
+    const id = String(o.id);
+    const deptId = o.dept ? slugify(o.dept) : '';
+    const catId = o.cat && deptId ? `${deptId}--${slugify(o.cat)}` : '';
+    const image = o.image || '';
+
+    const existing = index.get(id);
+    if (existing) {
+      if (o.name) {
+        existing.name = o.name;
+        existing.slug = slugify(o.name) + '-' + id;
+      }
+      if (o.brand) existing.brand = o.brand;
+      if (o.size) existing.size = o.size;
+      if (Number.isFinite(o.price)) existing.price = Number(o.price);
+      if (o.was != null) existing.was = Number(o.was) || null;
+      if (o.unit) existing.unit = o.unit;
+      if (o.badge) existing.badge = o.badge;
+      if (image) {
+        existing.image = image;
+        existing.images = [image];
+      }
+      if (deptId) existing.dept = deptId;
+      if (catId) {
+        existing.cat = catId;
+        catNames.set(catId, o.cat);
+      }
+      patched += 1;
+      continue;
+    }
+
+    const p = {
+      id,
+      sku: 'COLES-' + id,
+      slug: slugify(o.name || id) + '-' + id,
+      name: o.name || id,
+      brand: o.brand || 'Coles',
+      cat: catId || 'pantry--range',
+      dept: deptId || 'pantry',
+      size: o.size || '',
+      price: Number(o.price) || 0,
+      was: Number(o.was) || null,
+      unit: o.unit || '',
+      rating: Math.round((4.1 + ((hash(id) % 8) / 10)) * 10) / 10,
+      reviewCount: 20 + (hash(id) % 900),
+      stock: 30 + (hash(id) % 60),
+      maxStock: 120,
+      badge: o.badge || (Number(o.was) > Number(o.price) ? 'Special' : ''),
+      hue: (hash(deptId || 'pantry') % 300) + 15,
+      art: ['fruit-veg', 'meat-seafood', 'deli-chilled', 'bakery'].includes(deptId) ? 'fresh' : 'pack',
+      organic: /organic/i.test(o.name || ''),
+      image,
+      images: [image]
+    };
+    if (catId) catNames.set(catId, o.cat);
+    products.push(p);
+    index.set(id, p);
+    added += 1;
+  }
+
+  if (added || patched) {
+    products.sort((a, b) => a.name.localeCompare(b.name));
+    console.log(`[gen] manual overrides: ${patched} patched, ${added} added`);
+  }
+}
+
 /* ------------------------------------------------------- departments / cats */
 const deptAgg = new Map();
 const catAgg = new Map();
