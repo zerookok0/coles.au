@@ -504,6 +504,36 @@ const catalog = {
 
 fs.writeFileSync(path.join(OUT_DATA, 'catalog.json'), JSON.stringify(catalog));
 
+/* ----------------------------------------------------------- store directory */
+const STORES_SRC = path.join(ROOT, 'scrape', 'raw', 'stores.json');
+let storeCount = 0;
+try {
+  const stores = JSON.parse(fs.readFileSync(STORES_SRC, 'utf8'));
+  const seen = new Set();
+  const cleaned = [];
+  for (const s of stores) {
+    if (!s || !s.name || !Number.isFinite(s.lat) || !Number.isFinite(s.lon)) continue;
+    // node/way duplicates for the same physical store
+    const key = `${s.name.toLowerCase()}|${s.postcode}|${s.lat.toFixed(2)}|${s.lon.toFixed(2)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push({
+      id: s.id || `s${cleaned.length + 1}`,
+      name: s.name,
+      street: s.street || '',
+      suburb: s.suburb || '',
+      postcode: s.postcode || '',
+      state: s.state || '',
+      lat: s.lat,
+      lon: s.lon
+    });
+  }
+  fs.writeFileSync(path.join(OUT_DATA, 'stores.json'), JSON.stringify(cleaned));
+  storeCount = cleaned.length;
+} catch (e) {
+  console.log('[gen] no store directory yet (scrape/raw/stores.json missing)');
+}
+
 console.log(
   '[gen] REAL data: ' +
     products.length +

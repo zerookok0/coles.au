@@ -18,6 +18,8 @@ export default function Header() {
 
   const nav = (HOME && HOME.nav) || [];
   const suggestions = useMemo(() => (q.trim().length > 1 ? searchProducts(q, { limit: 6 }) : []), [q]);
+  const storeWhere =
+    [store.street, store.suburb, store.state, store.postcode].filter(Boolean).join(', ') || store.address || '';
 
   useEffect(() => {
     document.body.classList.toggle('no-scroll', menuOpen);
@@ -150,7 +152,7 @@ export default function Header() {
               <b>Set your location</b>
               <span>
                 You&apos;re seeing items and prices for {store.name}
-                {store.address ? ` — ${store.address}` : ''}
+                {storeWhere ? ` — ${storeWhere}` : ''}
               </span>
             </div>
             <Link to="/stores" className="hh-location-change">Change</Link>

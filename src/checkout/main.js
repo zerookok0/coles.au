@@ -188,6 +188,47 @@ function refresh() {
   syncConnectorCart();
 }
 
+/* ------------------------------------------------------- collection stores */
+async function hydrateStores() {
+  const sel = document.getElementById('t-store');
+  if (!sel) return;
+
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem('coles_store_v1') || 'null');
+  } catch (e) {}
+
+  try {
+    const res = await fetch('/data/stores.json', { cache: 'no-cache' });
+    const list = res.ok ? await res.json() : [];
+    if (Array.isArray(list) && list.length) {
+      sel.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      list.forEach((s) => {
+        const opt = document.createElement('option');
+        const where = [s.suburb, s.state, s.postcode].filter(Boolean).join(' ');
+        opt.value = `${s.name}${s.suburb ? ' — ' + s.suburb : ''}`;
+        opt.textContent = `${s.name}${where ? ` — ${where}` : ''}`;
+        frag.append(opt);
+      });
+      sel.append(frag);
+      if (saved && saved.name) {
+        const match = [...sel.options].find((o) => o.value.startsWith(saved.name));
+        if (match) sel.value = match.value;
+      }
+      return;
+    }
+  } catch (e) {}
+
+  if (saved && saved.name) {
+    const opt = document.createElement('option');
+    opt.value = saved.name;
+    opt.textContent = saved.name;
+    sel.prepend(opt);
+    sel.value = opt.value;
+  }
+}
+
 /* ------------------------------------------------------------------ events */
 function bindFulfilment() {
   const radios = document.querySelectorAll('input[name="fulfilment"]');
@@ -295,6 +336,7 @@ function boot() {
   initPixel();
   ensureOrderNumber();
   prefill();
+  hydrateStores();
   bindFulfilment();
   refresh();
   bindTracking();

@@ -48,6 +48,17 @@ worker/index.js            Workers 入口（若改用 Workers 部署时用）
 wrangler.toml              Workers 配置（Pages 部署时忽略）
 ```
 
+## 门店目录（/stores）
+
+`scrape/stores-photon.mjs` 用 OpenStreetMap 的 Photon 地理编码在澳洲范围内做自适应四叉树扫描（`brand=Coles` + `shop=supermarket`），产出 `scrape/raw/stores.json`，构建时落到 `public/data/stores.json`：
+
+- 308 家 Coles 超市，覆盖 ACT / NSW / NT / QLD / SA / TAS / VIC / WA
+- 字段：门店名（Coles + 所在区）、街道、区、邮编、州、经纬度
+- `/stores` 页支持：按 区 / 邮编 / 门店名 搜索、按州筛选、`Use my location` 按距离排序、分页加载、`Set as my store`
+- 选定门店写入 `localStorage['coles_store_v1']`，顶部定位条立即更新；结账页 `Collection store` 下拉也从这份数据填充并预选
+
+> Coles 官方 store locator 的接口在 Imperva 后面（Overpass 在这个网络也不通），所以门店坐标取自 OSM；OSM 收录的 Coles 超市数量少于 Coles 官方口径（约 840 家），要补齐需要一份完整门店清单（CSV/JSON），放进 `scrape/raw/stores.json` 重跑 `npm run gen` 即可。
+
 ## 命令
 
 ```bash

@@ -148,6 +148,18 @@ await check('12. catalog carries real Coles products', () => {
   return `${products.length} SKUs · ${catalog.categories.length} categories · ${catalog.departments.length} departments · ${cdn} real images`;
 });
 
+await check('18. store directory shipped', () => {
+  const file = path.join(process.cwd(), 'public/data/stores.json');
+  if (!fs.existsSync(file)) throw new Error('public/data/stores.json missing');
+  const stores = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!Array.isArray(stores) || stores.length < 200) throw new Error(`only ${stores.length} stores`);
+  const bad = stores.filter((s) => !s.name || !Number.isFinite(s.lat) || !Number.isFinite(s.lon));
+  if (bad.length) throw new Error(`${bad.length} stores without coordinates`);
+  const withPostcode = stores.filter((s) => s.postcode).length;
+  const states = [...new Set(stores.map((s) => s.state))].filter(Boolean);
+  return `${stores.length} stores · ${withPostcode} with postcode · ${states.length} states`;
+});
+
 /* ------------------------------------------------------------ functions dry run */
 const fnCartUrl = pathToFileURL(path.join(process.cwd(), 'functions/api/cart.js')).href;
 const fnCheckoutUrl = pathToFileURL(path.join(process.cwd(), 'functions/api/checkout.js')).href;

@@ -12,6 +12,7 @@ import { Login, Register } from './pages/Auth.jsx';
 import Account from './pages/Account.jsx';
 import Order from './pages/Order.jsx';
 import { NotFound, Policy } from './pages/Policy.jsx';
+import Stores from './pages/Stores.jsx';
 import { AuthProvider, CartProvider, StoreProvider, ToastProvider, useCart } from './state/index.jsx';
 
 function ScrollToTop() {
@@ -98,7 +99,7 @@ export default function App() {
                 <Route path="/cookies" element={<Policy slug="cookies" />} />
                 <Route path="/accessibility" element={<Policy slug="accessibility" />} />
                 <Route path="/contact" element={<Policy slug="contact" />} />
-                <Route path="/stores" element={<Policy slug="stores" />} />
+                <Route path="/stores" element={<Stores />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
