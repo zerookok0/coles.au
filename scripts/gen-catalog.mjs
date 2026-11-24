@@ -245,7 +245,9 @@ if (fs.existsSync(OVERRIDES)) {
     if (existing) {
       if (o.name) {
         existing.name = o.name;
-        existing.slug = slugify(o.name) + '-' + id;
+        // Keep the published URL stable across renames; only derive a new slug
+        // when the override asks for one explicitly.
+        existing.slug = o.slug || existing.slug;
       }
       if (o.brand) existing.brand = o.brand;
       if (o.size) existing.size = o.size;

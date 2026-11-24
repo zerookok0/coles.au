@@ -4,15 +4,20 @@
     {
       "id": "7758634",
       "brand": "Quilton",
-      "name": "Quilton Toilet Paper Classic White 20 Pack 3600 Sheets",
-      "size": "20 Pack · 3600 sheets",
+      "name": "Quilton Toilet Paper Classic White 20 Pack 3600 Sheets (2 Pack)",
+      "size": "2 × 20 Pack · 7200 sheets",
       "price": 539,
       "was": 1150,
-      "unit": "$0.15 per 100 sheets",
+      "unit": "$0.07 per 100 sheets",
       "badge": "Special",
-      "image": "https://productimages.coles.com.au/productimages/7/7758634.jpg",
+      "image": "/img/products/7758634-2pack.jpg",
+      "images": [
+        "/img/products/7758634-2pack.jpg",
+        "https://productimages.coles.com.au/productimages/7/7758634.jpg"
+      ],
       "dept": "Household",
-      "cat": "Toilet Paper, Tissues & Paper Towels"
+      "cat": "Toilet Paper, Tissues & Paper Towels",
+      "slug": "quilton-toilet-paper-classic-white-20-pack-3600-sheets-7758634"
     },
     {
       "id": "8150288",
