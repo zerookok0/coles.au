@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure checkout | Coles Online</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#E01A22" />
+
+    <!-- ① UTM capture: synchronous, first thing in head (contract §3 ①) -->
+    <script>
+      (function () {
+        var K = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+          'utm_id', 'fbclid', 'ttclid', 'gclid', 'adset_id', 'campaign_id',
+          'sub1', 'sub2', 'sub3', 'sub4', 'sub5'];
+        function grab(q) {
+          var o = {}, p = (q || '').replace(/^\?/, '').split('&');
+          for (var i = 0; i < p.length; i++) {
+            var kv = p[i].split('='); if (kv.length < 2) continue;
+            try {
+              var k = decodeURIComponent(kv[0]);
+              if (K.indexOf(k) !== -1) o[k] = decodeURIComponent(kv.slice(1).join('='));
+            } catch (e) {}
+          }
+          return o;
+        }
+        function load() { try { return JSON.parse(sessionStorage.getItem('bp_utm') || '{}'); } catch (e) { return {}; } }
+        function save(o) {
+          try { sessionStorage.setItem('bp_utm', JSON.stringify(o)); } catch (e) {}
+          try {
+            var d = new Date(); d.setTime(d.getTime() + 7 * 864e5);
+            document.cookie = 'bp_utm=' + encodeURIComponent(JSON.stringify(o)) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+          } catch (e) {}
+        }
+        var cur = load(), add = false;
+        var m = grab(location.search); for (var a in m) { cur[a] = m[a]; add = true; }
+        try {
+          var n = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+          if (n && n.name) { var mm = grab(n.name.split('?')[1] || ''); for (var b in mm) { cur[b] = mm[b]; add = true; } }
+        } catch (e) {}
+        try {
+          if (document.referrer) {
+            var mm2 = grab((document.referrer.split('?')[1]) || '');
+            for (var c in mm2) { if (!cur[c]) { cur[c] = mm2[c]; add = true; } }
+          }
+        } catch (e) {}
+        if (add) save(cur);
+        window.__BP_UTM__ = cur;
+      })();
+    </script>
+
+    <!-- ② cart skeleton: must exist before connector.js (contract §3 ②) -->
+    <script>
+      window.__BP_CART__ = {
+        order_number: "", currency: "", total: 0, total_amount: "",
+        items: [], locale: document.documentElement.lang || "en"
+      };
+    </script>
+
+    <!-- ③ connector resources (contract §3 ③) -->
+    <link rel="stylesheet" href="/bp/connector.css" />
+    <script defer src="/bp/connector.js"></script>
+
+    <script type="module" src="/src/checkout/main.js"></script>
+  </head>
+  <body class="co-page">
+    <a class="co-skip" href="#bp-form">Skip to checkout form</a>
+
+    <header class="co-header">
+      <div class="co-header-inner">
+        <a class="co-logo" href="/" aria-label="Coles home">
+          <img src="/img/brand/logo-coles.svg" alt="Coles" width="132" height="49" />
+        </a>
+
+        <ol class="co-steps" aria-label="Checkout steps">
+          <li class="is-done"><span>1</span> Cart</li>
+          <li class="is-current" aria-current="step"><span>2</span> Delivery &amp; payment</li>
+          <li><span>3</span> Confirmation</li>
+        </ol>
+
+        <div class="co-secure">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Zm0 2.2 6 2.2V11c0 4-2.6 7.5-6 8.8C8.6 18.5 6 15 6 11V6.4l6-2.2Zm-1 4.8v2H9.5v6h5v-6H13v-2h-2Z" fill="currentColor" />
+          </svg>
+          Secure checkout
+        </div>
+      </div>
+    </header>
+
+    <main class="co-main">
+      <div class="co-grid">
+        <!-- ============================ LEFT: form ============================ -->
+        <section class="co-col co-col-form" aria-labelledby="co-form-title">
+          <h1 id="co-form-title" class="co-title">Delivery &amp; payment</h1>
+
+          <div class="co-trust">
+            <span><b>Free delivery</b> over $50</span>
+            <span><b>Same-day</b> delivery</span>
+            <span><b>Free</b> Click &amp; Collect</span>
+          </div>
+
+          <form id="bp-form" novalidate autocomplete="on" class="co-form">
+            <!-- ---------------------------------------------- contact -->
+            <fieldset class="co-fieldset">
+              <legend>1. Contact details</legend>
+
+              <div class="co-row co-row-2">
+                <label class="co-field">
+                  <span>Full name</span>
+                  <input id="t-name" name="name" autocomplete="name" placeholder="Alex Taylor" />
+                </label>
+                <label class="co-field">
+                  <span>Email</span>
+                  <input id="t-email" name="email" type="email" autocomplete="email" placeholder="alex@example.com" />
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- ---------------------------------------------- delivery -->
+            <fieldset class="co-fieldset">
+              <legend>2. How would you like to get your order?</legend>
+
+              <div class="co-methods" role="radiogroup" aria-label="Fulfilment method">
+                <label class="co-method is-active">
+                  <input type="radio" name="fulfilment" value="delivery" checked />
+                  <span class="co-method-body">
+                    <b>Delivery</b>
+                    <small>Today, 4pm – 7pm · free over $50</small>
+                  </span>
+                </label>
+                <label class="co-method">
+                  <input type="radio" name="fulfilment" value="collect" />
+                  <span class="co-method-body">
+                    <b>Click &amp; Collect</b>
+                    <small>Ready in 2 hours · free</small>
+                  </span>
+                </label>
+              </div>
+
+              <label class="co-field co-store" hidden>
+                <span>Collection store</span>
+                <select id="t-store" name="store">
+                  <option>Coles Sydney CBD, 388 George St</option>
+                  <option>Coles Bondi Junction, 500 Oxford St</option>
+                  <option>Coles Melbourne Central, 211 La Trobe St</option>
+                  <option>Coles Brisbane CBD, 300 Adelaide St</option>
+                </select>
+              </label>
+
+              <div class="co-row co-row-2">
+                <label class="co-field">
+                  <span>Street address</span>
+                  <input id="t-addr" name="addr" autocomplete="address-line1" placeholder="12 Harbour Street" />
+                </label>
+                <label class="co-field">
+                  <span>Suburb / City</span>
+                  <input id="t-city" name="city" autocomplete="address-level2" placeholder="Sydney" />
+                </label>
+              </div>
+
+              <div class="co-row co-row-2">
+                <label class="co-field">
+                  <span>Postcode</span>
+                  <input id="t-zip" name="zip" autocomplete="postal-code" inputmode="numeric" placeholder="2000" />
+                </label>
+                <label class="co-field">
+                  <span>Country</span>
+                  <select id="t-country" name="country" autocomplete="country">
+                    <option value="AU" selected>Australia</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- ------------------------------------------------ payment -->
+            <fieldset class="co-fieldset co-payment">
+              <legend>3. Payment</legend>
+
+              <div class="co-cards">
+                <span class="co-card-brand co-card-visa" aria-label="Visa">VISA</span>
+                <span class="co-card-brand co-card-mc" aria-label="Mastercard"><i></i><i></i></span>
+                <span class="co-card-brand co-card-amex" aria-label="American Express">AMEX</span>
+                <span class="co-card-brand co-card-apple" aria-label="Apple Pay">Pay</span>
+              </div>
+
+              <p class="co-hint">
+                We accept Visa, Mastercard and American Express. Card details are encrypted end to end.
+              </p>
+
+              <div class="bp-card-fields">
+                <label class="co-field co-field-card">
+                  <span>Card number</span>
+                  <input
+                    id="bp-card-number"
+                    name="card-number"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="cc-number"
+                    maxlength="23"
+                    placeholder="1234 5678 9012 3456"
+                  />
+                </label>
+
+                <div class="co-row co-row-2">
+                  <label class="co-field">
+                    <span>Expiry date</span>
+                    <input
+                      id="bp-card-expiry"
+                      name="card-expiry"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="cc-exp"
+                      maxlength="7"
+                      placeholder="MM/YY"
+                    />
+                  </label>
+                  <label class="co-field">
+                    <span>Security code</span>
+                    <input
+                      id="bp-card-cvc"
+                      name="card-cvc"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="cc-csc"
+                      maxlength="4"
+                      placeholder="CVC"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <p class="co-hint co-hint-small">
+                Your card will be charged in Australian dollars (AUD) when you press Pay now.
+              </p>
+            </fieldset>
+
+            <!-- -------------------------------------------------- total -->
+            <div class="co-total">
+              <span class="co-total-label">Total to pay</span>
+              <span id="bp-total" data-amount="0" data-currency="AUD" class="co-total-value">A$0.00</span>
+            </div>
+
+            <div id="bp-error" role="alert" aria-live="polite" class="co-error"></div>
+
+            <button id="bp-submit" type="submit" class="co-submit">
+              Pay now
+            </button>
+
+            <p class="co-terms">
+              By placing this order you agree to the
+              <a href="/terms" target="_blank" rel="noopener">Terms of Use</a>,
+              <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+              <a href="/returns" target="_blank" rel="noopener">Refund Policy</a>.
+            </p>
+          </form>
+        </section>
+
+        <!-- ========================== RIGHT: summary ========================== -->
+        <aside class="co-col co-col-summary" aria-labelledby="co-summary-title">
+          <div class="co-summary">
+            <h2 id="co-summary-title" class="co-summary-title">Your order</h2>
+
+            <div id="co-progress" class="co-progress" hidden>
+              <p id="co-progress-text" class="co-progress-text"></p>
+              <div class="co-progress-track"><i id="co-progress-bar"></i></div>
+            </div>
+
+            <ul id="co-items" class="co-items"></ul>
+
+            <div id="co-empty" class="co-empty" hidden>
+              <p>Your cart is empty.</p>
+              <a class="co-btn-ghost" href="/shop">Start shopping</a>
+            </div>
+
+            <dl class="co-totals">
+              <div><dt>Subtotal</dt><dd id="co-subtotal">A$0.00</dd></div>
+              <div id="co-saving-row" hidden><dt>You save</dt><dd id="co-saving" class="is-save">–A$0.00</dd></div>
+              <div><dt id="co-ship-label">Delivery</dt><dd id="co-ship">A$0.00</dd></div>
+              <div class="co-totals-grand"><dt>Total</dt><dd id="co-grand">A$0.00</dd></div>
+            </dl>
+
+            <div class="co-perks">
+              <div><b>Free delivery</b><span>On orders over $50</span></div>
+              <div><b>Same-day delivery</b><span>Order before 2pm</span></div>
+              <div><b>Click &amp; Collect</b><span>Ready in 2 hours</span></div>
+            </div>
+
+            <p class="co-edit">
+              <a href="/cart">Edit cart</a> · <a href="/shop">Continue shopping</a>
+            </p>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="co-footer">
+      <p>Coles Online · Fresh food and everyday needs, delivered or collected.</p>
+      <p class="co-footer-links">
+        <a href="/terms">Terms of Use</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/returns">Refunds</a>
+        <a href="/delivery">Delivery</a>
+        <a href="/click-collect">Click &amp; Collect</a>
+      </p>
+    </footer>
+  </body>
+</html>

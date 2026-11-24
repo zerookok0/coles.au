@@ -1,0 +1,26 @@
+{
+  "name": "coles-au-store",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Coles AU style storefront (1:1 layout clone) with /bp checkout takeover",
+  "scripts": {
+    "gen": "node scripts/gen-catalog.mjs",
+    "dev": "node scripts/gen-catalog.mjs && vite",
+    "build": "node scripts/gen-catalog.mjs && vite build && node scripts/postbuild.mjs",
+    "preview": "vite preview --port 4173 --strictPort",
+    "verify": "node scripts/verify-site.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

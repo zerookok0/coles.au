@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.tmp/
+src/data/catalog.json
+public/img/p/
+public/img/cat/
+public/img/dept/
+public/img/hero/
+public/img/ui/
+.wrangler/
+*.log
+.DS_Store

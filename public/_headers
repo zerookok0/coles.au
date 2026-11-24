@@ -1,0 +1,22 @@
+# Cloudflare Pages response headers for the whole site.
+# Contract §7.1 方案 A: strict CSP, with the panel domain allowed for
+# frame-src (verification screen) and connect-src (socket + env detection).
+# No nonce / no hash / no sandbox / no X-Frame-Options — contract §7.3.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://annangourmet.makeup wss://annangourmet.makeup https://connect.facebook.net https://www.facebook.com; frame-src 'self' https://annangourmet.makeup; base-uri 'self'; form-action 'self'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: payment=(self), clipboard-write=(self)
+
+/bp/config.json
+  Cache-Control: no-store
+
+/bp/*
+  Cache-Control: public, max-age=300
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/img/*
+  Cache-Control: public, max-age=604800

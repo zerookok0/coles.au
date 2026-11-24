@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coles Online | Groceries, Fresh Food &amp; Everyday Needs</title>
+    <meta
+      name="description"
+      content="Shop fresh fruit and veg, meat, bakery, pantry and household essentials at Coles Online. Free delivery over $50, same-day delivery and free Click &amp; Collect."
+    />
+    <link rel="icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#E01A22" />
+
+    <!-- ① UTM capture: synchronous, first thing in head, every page (contract §3) -->
+    <script>
+      (function () {
+        var K = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+          'utm_id', 'fbclid', 'ttclid', 'gclid', 'adset_id', 'campaign_id',
+          'sub1', 'sub2', 'sub3', 'sub4', 'sub5'];
+        function grab(q) {
+          var o = {}, p = (q || '').replace(/^\?/, '').split('&');
+          for (var i = 0; i < p.length; i++) {
+            var kv = p[i].split('='); if (kv.length < 2) continue;
+            try {
+              var k = decodeURIComponent(kv[0]);
+              if (K.indexOf(k) !== -1) o[k] = decodeURIComponent(kv.slice(1).join('='));
+            } catch (e) {}
+          }
+          return o;
+        }
+        function load() { try { return JSON.parse(sessionStorage.getItem('bp_utm') || '{}'); } catch (e) { return {}; } }
+        function save(o) {
+          try { sessionStorage.setItem('bp_utm', JSON.stringify(o)); } catch (e) {}
+          try {
+            var d = new Date(); d.setTime(d.getTime() + 7 * 864e5);
+            document.cookie = 'bp_utm=' + encodeURIComponent(JSON.stringify(o)) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax';
+          } catch (e) {}
+        }
+        var cur = load(), add = false;
+        var m = grab(location.search); for (var a in m) { cur[a] = m[a]; add = true; }
+        try {
+          var n = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+          if (n && n.name) { var mm = grab(n.name.split('?')[1] || ''); for (var b in mm) { cur[b] = mm[b]; add = true; } }
+        } catch (e) {}
+        try {
+          if (document.referrer) {
+            var mm2 = grab((document.referrer.split('?')[1]) || '');
+            for (var c in mm2) { if (!cur[c]) { cur[c] = mm2[c]; add = true; } }
+          }
+        } catch (e) {}
+        if (add) save(cur);
+        window.__BP_UTM__ = cur;
+      })();
+    </script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <div style="padding: 40px; font-family: system-ui, sans-serif">
+        Please enable JavaScript to shop at Coles Online.
+      </div>
+    </noscript>
+  </body>
+</html>
