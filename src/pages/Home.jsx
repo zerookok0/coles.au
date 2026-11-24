@@ -132,18 +132,6 @@ export default function Home() {
         <Rail items={home.catRail} />
         <HeroBanner items={home.heroes} />
 
-        <section className="qtiles" aria-label="More ways to save">
-          {quad.map((q) => (
-            <Link key={q.heading} to={q.href} className="qtile">
-              {q.roundel ? <img className="qtile-roundel" src={q.roundel} alt="" loading="lazy" onError={IMG_FALLBACK} /> : null}
-              <h3>{q.heading}</h3>
-              <p>{q.description}</p>
-              <span className="qtile-cta">{q.ctaLabel}</span>
-              <img className="qtile-photo" src={q.photo} alt="" loading="lazy" onError={IMG_FALLBACK} />
-            </Link>
-          ))}
-        </section>
-
         <section className="promoband" aria-label="Offers">
           <div className="promoband-head">
             <h2>This week at Coles</h2>
@@ -168,6 +156,18 @@ export default function Home() {
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="qtiles" aria-label="More ways to save">
+          {quad.map((q) => (
+            <Link key={q.heading} to={q.href} className="qtile">
+              {q.roundel ? <img className="qtile-roundel" src={q.roundel} alt="" loading="lazy" onError={IMG_FALLBACK} /> : null}
+              <h3>{q.heading}</h3>
+              <p>{q.description}</p>
+              <span className="qtile-cta">{q.ctaLabel}</span>
+              <img className="qtile-photo" src={q.photo} alt="" loading="lazy" onError={IMG_FALLBACK} />
+            </Link>
+          ))}
         </section>
 
         {rows[0] ? (
