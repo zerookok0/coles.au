@@ -251,13 +251,13 @@
 .badge-new { background: #1a7f4b; }
 .badge-save { background: rgba(0, 0, 0, 0.78); text-transform: none; letter-spacing: 0; }
 
-.card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.card-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
 .card-brand { font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.card-title { font-size: 13.5px; font-weight: 600; line-height: 1.32; min-height: 36px; }
+.card-title { font-size: 12.5px; font-weight: 600; line-height: 1.3; min-height: 32px; }
 .card-title a:hover { color: var(--red); }
 .card-size { font-size: 11.5px; color: var(--muted); }
 .card-price-row { display: flex; align-items: baseline; gap: 7px; margin-top: 4px; flex-wrap: wrap; }
-.price { font-size: 19px; font-weight: 900; color: var(--red); letter-spacing: -0.02em; }
+.price { font-size: 17px; font-weight: 900; color: var(--red); letter-spacing: -0.02em; }
 .price-was { font-size: 12.5px; color: var(--muted); text-decoration: line-through; }
 .card-unit { font-size: 11px; color: var(--muted); }
 .card-stock { font-size: 11.5px; font-weight: 700; color: #b26a00; }
@@ -272,10 +272,10 @@
   background: #fff;
   color: var(--red);
   border-radius: var(--radius-pill);
-  padding: 8px 10px;
+  padding: 7px 9px;
   font-weight: 700;
-  font-size: 13px;
-  margin-top: 8px;
+  font-size: 12.5px;
+  margin-top: 7px;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .btn-add:hover:not(:disabled) { background: var(--red); color: #fff; }
@@ -413,10 +413,11 @@
 .filter-value { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
 .filter-cats { max-height: 260px; overflow: auto; }
 
+.listing-head h1 { font-size: clamp(20px, 2.2vw, 26px); }
 .productgrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(166px, 1fr));
+  gap: 12px;
 }
 .loadmore { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 0 10px; }
 .loadmore span, .listing-end { font-size: 12.5px; color: var(--muted); }

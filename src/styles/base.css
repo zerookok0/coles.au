@@ -38,7 +38,7 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: var(--ink);
   background: var(--bg);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -73,9 +73,9 @@ dl, dd, dt { margin: 0; }
   gap: 8px;
   border: 0;
   border-radius: var(--radius-pill);
-  padding: 12px 22px;
+  padding: 10px 18px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1;
   transition: background 0.16s ease, color 0.16s ease, transform 0.12s ease, box-shadow 0.16s ease;
   white-space: nowrap;
@@ -94,7 +94,7 @@ dl, dd, dt { margin: 0; }
 .btn-light { background: #fff; color: var(--red); }
 .btn-light:hover { background: #ffecec; }
 
-.btn-lg { padding: 16px 26px; font-size: 16px; }
+.btn-lg { padding: 13px 22px; font-size: 15px; }
 .btn-block { width: 100%; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -121,7 +121,7 @@ dl, dd, dt { margin: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 38px;
+  min-height: 34px;
 }
 .topbar-store { display: inline-flex; align-items: center; gap: 7px; color: #fff; }
 .topbar-store b { font-weight: 700; }
