@@ -39,11 +39,11 @@ fs.writeFileSync(dest, html);
 fs.rmSync(path.join(DIST, 'checkout'), { recursive: true, force: true });
 
 const redirects = fs.readFileSync(path.join(DIST, '_redirects'), 'utf8');
-for (const rule of ['/checkout ', '/checkout/ ']) {
-  if (!redirects.includes(rule)) {
-    console.error(`[postbuild] _redirects is missing the "${rule.trim()}" rewrite — /checkout could redirect`);
-    process.exit(1);
-  }
+if (/^\/checkout[\/\s]/m.test(redirects)) {
+  console.error(
+    '[postbuild] _redirects contains a /checkout rule — Pages would rewrite the .html target back and emit a 308 loop'
+  );
+  process.exit(1);
 }
 
 const required = [
