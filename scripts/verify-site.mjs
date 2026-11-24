@@ -28,7 +28,7 @@ function read(file) {
 
 const checkoutHtml = (() => {
   try {
-    return read('checkout/index.html');
+    return read('checkout.html');
   } catch (e) {
     return '';
   }
@@ -44,11 +44,15 @@ const headers = (() => {
 
 await check('1. /checkout served without redirect', () => {
   if (!fs.existsSync(path.join(DIST, 'checkout.html'))) throw new Error('missing checkout.html');
-  if (!checkoutHtml) throw new Error('missing checkout/index.html');
-  if (!/_redirects/.test('') && !fs.readFileSync(path.join(DIST, '_redirects'), 'utf8').includes('/checkout')) {
-    throw new Error('_redirects has no /checkout rule');
+  if (!checkoutHtml) throw new Error('checkout.html is empty');
+  if (fs.existsSync(path.join(DIST, 'checkout', 'index.html'))) {
+    throw new Error('dist/checkout/index.html still exists — Pages would answer /checkout with a 308');
   }
-  return 'checkout.html + checkout/index.html + rewrite';
+  const redirects = fs.readFileSync(path.join(DIST, '_redirects'), 'utf8');
+  for (const rule of ['/checkout ', '/checkout/ ']) {
+    if (!redirects.includes(rule)) throw new Error(`_redirects missing "${rule.trim()}" rewrite`);
+  }
+  return 'flat checkout.html + 200 rewrites for /checkout and /checkout/';
 });
 
 await check('2. /bp/connector.js present', () => {

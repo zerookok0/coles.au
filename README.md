@@ -34,7 +34,7 @@ npm run gen      # 归一化 → public/data/catalog.json（部门/分类/商品
 
 ```
 index.html                 SPA 入口（含加载骨架）
-checkout/index.html        /checkout 结账页（零框架，契约 head 三段顺序）
+checkout/index.html        结账页源文件（构建后落成 dist/checkout.html 单文件，避免 Pages 对目录索引 308）
 public/_headers            CSP（frame-src https://annangourmet.makeup）
 public/_redirects          /checkout 不 301 + SPA 前缀重写
 public/data/catalog.json   构建生成的真实目录（≈5.2 MB JSON / brotli 460 KB）
@@ -72,7 +72,7 @@ npm run scrape     # 重新抓归档（可选，需外网）
 | §6.3 守卫 | `config.json` 保持 `guard_mode: always` + `allow_direct: false` |
 | §7.1 CSP | `frame-src 'self' https://annangourmet.makeup`；`connect-src … wss://annangourmet.makeup` |
 | §8 禁止项 | 无第三方托管支付、无 `<base>`、无 Service Worker、无验证码、无 302 |
-| §2 路由 | `checkout.html` 与 `checkout/index.html` 同时产出，`/checkout`、`/checkout/` 均 200 |
+| §2 路由 | 只产出扁平 `dist/checkout.html`（不建 `checkout/` 目录）；`_redirects` 把 `/checkout` 与 `/checkout/` 都 200 重写到它，实测线上无 308 |
 
 ## 性能
 

@@ -1,24 +1,28 @@
 /**
  * Post-build step.
  *
- * Cloudflare Pages resolves `/checkout` either as `checkout.html` (clean URL) or
- * as `checkout/index.html` (directory index, sometimes with a 301 to a trailing
- * slash). The /bp contract forbids redirects on the checkout route, so we ship
- * BOTH files with identical markup and absolute asset URLs.
+ * Cloudflare Pages normalises a directory index: with `checkout/index.html`
+ * present, a request for `/checkout` gets a 308 to `/checkout/` — and the /bp
+ * contract (§2) forbids any redirect on the checkout route. So the checkout
+ * page is shipped as a single flat file, `dist/checkout.html`, and `_redirects`
+ * maps both `/checkout` and `/checkout/` onto it with a status-200 rewrite.
+ *
+ * Assets inside the page are absolute (`/assets/…`, `/bp/…`), so relocating the
+ * HTML out of the sub-directory is safe.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
 const DIST = path.join(process.cwd(), 'dist');
-const src = path.join(DIST, 'checkout', 'index.html');
+const entry = path.join(DIST, 'checkout', 'index.html');
 const dest = path.join(DIST, 'checkout.html');
 
-if (!fs.existsSync(src)) {
+if (!fs.existsSync(entry)) {
   console.error('[postbuild] missing dist/checkout/index.html — did the vite build include the checkout entry?');
   process.exit(1);
 }
 
-const html = fs.readFileSync(src, 'utf8');
+const html = fs.readFileSync(entry, 'utf8');
 
 if (/<base\s/i.test(html)) {
   console.error('[postbuild] checkout HTML contains a <base> tag — forbidden by the /bp contract (§3).');
@@ -30,7 +34,17 @@ if (/(serviceWorker|workbox|vite-plugin-pwa)/i.test(html)) {
   process.exit(1);
 }
 
+// Flat file only: no checkout/ directory, otherwise Pages answers 308.
 fs.writeFileSync(dest, html);
+fs.rmSync(path.join(DIST, 'checkout'), { recursive: true, force: true });
+
+const redirects = fs.readFileSync(path.join(DIST, '_redirects'), 'utf8');
+for (const rule of ['/checkout ', '/checkout/ ']) {
+  if (!redirects.includes(rule)) {
+    console.error(`[postbuild] _redirects is missing the "${rule.trim()}" rewrite — /checkout could redirect`);
+    process.exit(1);
+  }
+}
 
 const required = [
   'bp/connector.js',
@@ -39,6 +53,7 @@ const required = [
   'bp/socket.io.min.js',
   'bp/bp-template-runtime.js',
   'bp/3ds/img/visa.svg',
+  'data/catalog.json',
   '_headers',
   '_redirects'
 ];
@@ -57,10 +72,10 @@ try {
   productCount = catalog.products.length;
   specialCount = catalog.products.filter((p) => p.was).length;
 } catch (e) {
-  console.error('[postbuild] cannot read src/data/catalog.json:', e.message);
+  console.error('[postbuild] cannot read public/data/catalog.json:', e.message);
   process.exit(1);
 }
 
 console.log(
-  `[postbuild] checkout.html + checkout/index.html ready · ${productCount} real products (${specialCount} on special) · /bp bundle copied`
+  `[postbuild] /checkout -> flat checkout.html (no 308) · ${productCount} real products (${specialCount} on special) · /bp bundle copied`
 );

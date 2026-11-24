@@ -1,14 +1,19 @@
 # Cloudflare Pages rewrites (status 200 = proxy, URL stays as requested).
-# Static files always win over these prefix rules, so /checkout, /checkout/,
-# /bp/*, /assets/* and /img/* are served untouched.
+# Static files win over these prefix rules, so /bp/*, /assets/*, /img/* and
+# /data/* are served untouched.
+#
+# /checkout is shipped as a flat checkout.html (no checkout/ directory) because
+# Pages answers a directory index with a 308 redirect — which the /bp contract
+# forbids on this route.
+
+/checkout        /checkout.html   200
+/checkout/       /checkout.html   200
 
 /shop            /index.html   200
 /category/*      /index.html   200
 /product/*       /index.html   200
 /search          /index.html   200
 /cart            /index.html   200
-/checkout        /checkout/index.html   200
-/checkout/       /checkout/index.html   200
 /account         /index.html   200
 /account/*       /index.html   200
 /order/*         /index.html   200
