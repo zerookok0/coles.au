@@ -43,7 +43,7 @@ export default function Header() {
           </button>
 
           <Link to="/" className="hh-logo" aria-label="Coles home">
-            <img src="/img/brand/logo-coles.svg" alt="Coles" width="128" height="47" />
+            <img src="/img/brand/logo.svg" alt="Coles" width="128" height="47" />
           </Link>
 
           <form className="hh-search" onSubmit={submitSearch} role="search">
@@ -164,7 +164,7 @@ export default function Header() {
         <div className="drawer" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="drawer-panel">
             <div className="drawer-head">
-              <img src="/img/brand/logo-coles.svg" alt="Coles" width="110" height="40" />
+              <img src="/img/brand/logo.svg" alt="Coles" width="110" height="40" />
               <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu">
                 <Icon name="close" size={24} />
               </button>

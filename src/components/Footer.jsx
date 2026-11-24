@@ -66,7 +66,7 @@ export default function Footer() {
 
       <div className="container footer-main">
         <div className="footer-brand">
-          <img src="/img/brand/logo-coles.svg" alt="Coles" width="120" height="44" />
+          <img src="/img/brand/logo.svg" alt="Coles" width="120" height="44" />
           <p>Fresh food, everyday needs and 1,000+ weekly specials — delivered to your door or ready to collect.</p>
 
           <form

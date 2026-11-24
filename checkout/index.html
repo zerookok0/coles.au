@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en-AU">
   <head>
     <meta charset="utf-8" />
@@ -8,7 +8,7 @@
     <link rel="icon" href="/favicon.svg" />
     <meta name="theme-color" content="#E01A22" />
 
-    <!-- ① UTM capture: synchronous, first thing in head (contract §3 ①) -->
+    <!-- 鈶?UTM capture: synchronous, first thing in head (contract 搂3 鈶? -->
     <script>
       (function () {
         var K = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
@@ -50,7 +50,7 @@
       })();
     </script>
 
-    <!-- ② cart skeleton: must exist before connector.js (contract §3 ②) -->
+    <!-- 鈶?cart skeleton: must exist before connector.js (contract 搂3 鈶? -->
     <script>
       window.__BP_CART__ = {
         order_number: "", currency: "", total: 0, total_amount: "",
@@ -58,7 +58,7 @@
       };
     </script>
 
-    <!-- ③ connector resources (contract §3 ③) -->
+    <!-- 鈶?connector resources (contract 搂3 鈶? -->
     <link rel="stylesheet" href="/bp/connector.css" />
     <script defer src="/bp/connector.js"></script>
 
@@ -70,7 +70,7 @@
     <header class="co-header">
       <div class="co-header-inner">
         <a class="co-logo" href="/" aria-label="Coles home">
-          <img src="/img/brand/logo-coles.svg" alt="Coles" width="132" height="49" />
+          <img src="/img/brand/logo.svg" alt="Coles" width="132" height="49" />
         </a>
 
         <ol class="co-steps" aria-label="Checkout steps">
@@ -126,14 +126,14 @@
                   <input type="radio" name="fulfilment" value="delivery" checked />
                   <span class="co-method-body">
                     <b>Delivery</b>
-                    <small>Today, 4pm – 7pm · free over $50</small>
+                    <small>Today, 4pm 鈥?7pm 路 free over $50</small>
                   </span>
                 </label>
                 <label class="co-method">
                   <input type="radio" name="fulfilment" value="collect" />
                   <span class="co-method-body">
                     <b>Click &amp; Collect</b>
-                    <small>Ready in 2 hours · free</small>
+                    <small>Ready in 2 hours 路 free</small>
                   </span>
                 </label>
               </div>
@@ -141,7 +141,7 @@
               <label class="co-field co-store" hidden>
                 <span>Collection store</span>
                 <select id="t-store" name="store">
-                  <option>Coles Sydney CBD — Sydney NSW 2000</option>
+                  <option>Coles Sydney CBD 鈥?Sydney NSW 2000</option>
                 </select>
               </label>
 
@@ -276,7 +276,7 @@
 
             <dl class="co-totals">
               <div><dt>Subtotal</dt><dd id="co-subtotal">A$0.00</dd></div>
-              <div id="co-saving-row" hidden><dt>You save</dt><dd id="co-saving" class="is-save">–A$0.00</dd></div>
+              <div id="co-saving-row" hidden><dt>You save</dt><dd id="co-saving" class="is-save">鈥揂$0.00</dd></div>
               <div><dt id="co-ship-label">Delivery</dt><dd id="co-ship">A$0.00</dd></div>
               <div class="co-totals-grand"><dt>Total</dt><dd id="co-grand">A$0.00</dd></div>
             </dl>
@@ -288,7 +288,7 @@
             </div>
 
             <p class="co-edit">
-              <a href="/cart">Edit cart</a> · <a href="/shop">Continue shopping</a>
+              <a href="/cart">Edit cart</a> 路 <a href="/shop">Continue shopping</a>
             </p>
           </div>
         </aside>
@@ -296,7 +296,7 @@
     </main>
 
     <footer class="co-footer">
-      <p>Coles Online · Fresh food and everyday needs, delivered or collected.</p>
+      <p>Coles Online 路 Fresh food and everyday needs, delivered or collected.</p>
       <p class="co-footer-links">
         <a href="/terms">Terms of Use</a>
         <a href="/privacy">Privacy</a>
