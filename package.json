@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Coles AU style storefront (1:1 layout clone) with /bp checkout takeover",
   "scripts": {
+    "scrape": "node scrape/collect.mjs",
     "gen": "node scripts/gen-catalog.mjs",
     "dev": "node scripts/gen-catalog.mjs && vite",
     "build": "node scripts/gen-catalog.mjs && vite build && node scripts/postbuild.mjs",

@@ -1,0 +1,16 @@
+# Cloudflare Workers build (the "Connect to Git" flow in Workers & Pages).
+#
+# Static site lives in ./dist (built by `npm run build`), API routes are served
+# by worker/index.js, which reuses the Pages Functions handlers.
+#
+# If you deploy with Cloudflare Pages instead (functions/ + output dir dist),
+# this file is simply ignored.
+
+name = "coles-au"
+main = "worker/index.js"
+compatibility_date = "2025-06-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"

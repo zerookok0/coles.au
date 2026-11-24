@@ -49,8 +49,18 @@ if (missing.length) {
   process.exit(1);
 }
 
-const imgCount = fs.existsSync(path.join(DIST, 'img', 'p'))
-  ? fs.readdirSync(path.join(DIST, 'img', 'p')).length
-  : 0;
+const catalogPath = path.join(process.cwd(), 'public', 'data', 'catalog.json');
+let productCount = 0;
+let specialCount = 0;
+try {
+  const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
+  productCount = catalog.products.length;
+  specialCount = catalog.products.filter((p) => p.was).length;
+} catch (e) {
+  console.error('[postbuild] cannot read src/data/catalog.json:', e.message);
+  process.exit(1);
+}
 
-console.log(`[postbuild] checkout.html + checkout/index.html ready · ${imgCount} product images · /bp bundle copied`);
+console.log(
+  `[postbuild] checkout.html + checkout/index.html ready · ${productCount} real products (${specialCount} on special) · /bp bundle copied`
+);

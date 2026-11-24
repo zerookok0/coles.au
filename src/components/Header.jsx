@@ -163,7 +163,7 @@ export default function Header() {
                 <div className="mega">
                   <p className="mega-title">{d.name}</p>
                   <ul>
-                    {d.categories.map((cid) => {
+                    {d.categories.slice(0, 12).map((cid) => {
                       const cat = getCategory(cid);
                       return cat ? (
                         <li key={cid}>
@@ -171,6 +171,13 @@ export default function Header() {
                         </li>
                       ) : null;
                     })}
+                    {d.categories.length > 12 ? (
+                      <li>
+                        <Link to={`/shop?dept=${d.id}`} className="mega-all">
+                          All {d.categories.length} categories →
+                        </Link>
+                      </li>
+                    ) : null}
                   </ul>
                   <div className="mega-promo">
                     <b>Free delivery over $50</b>

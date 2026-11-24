@@ -56,7 +56,42 @@
     <script type="module" src="/src/main.jsx"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot" role="status" aria-live="polite">
+        <span class="boot-logo">coles</span>
+        <span class="boot-spin" aria-hidden="true"></span>
+        <span class="boot-text">Loading this week&rsquo;s prices&hellip;</span>
+      </div>
+    </div>
+    <style>
+      .boot {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+        color: #6d6d6d;
+      }
+      .boot-logo {
+        font-family: 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+        font-size: 42px;
+        font-weight: 700;
+        letter-spacing: -2px;
+        color: #e01a22;
+      }
+      .boot-spin {
+        width: 26px;
+        height: 26px;
+        border: 3px solid #f0d3d4;
+        border-top-color: #e01a22;
+        border-radius: 50%;
+        animation: bootspin 0.8s linear infinite;
+      }
+      .boot-text { font-size: 14px; }
+      @keyframes bootspin { to { transform: rotate(360deg); } }
+    </style>
     <noscript>
       <div style="padding: 40px; font-family: system-ui, sans-serif">
         Please enable JavaScript to shop at Coles Online.

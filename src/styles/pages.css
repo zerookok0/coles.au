@@ -137,7 +137,7 @@
   transition: border-color 0.15s ease, transform 0.15s ease;
 }
 .cattile:hover { border-color: var(--red); transform: translateY(-2px); }
-.cattile img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #fafafa; }
+.cattile img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
 .cattile span { display: flex; flex-direction: column; }
 .cattile b { font-size: 13.5px; }
 .cattile small { font-size: 11.5px; color: var(--muted); }
@@ -177,7 +177,7 @@
 }
 .mission-meta { display: flex; justify-content: space-between; font-size: 12.5px; opacity: 0.78; margin-bottom: 18px; }
 .mission-art { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 10px; }
-.mission-art img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; background: #fff; }
+.mission-art img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; background: #fff; }
 .mission-art img:first-child { grid-row: span 2; }
 
 /* ---------------------------------------------------------------------- rail */
@@ -226,7 +226,7 @@
 .card:hover { border-color: #cfcfcf; box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .card.is-out { opacity: 0.72; }
 .card-media { position: relative; display: block; background: #fff; }
-.card-media img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.card-media img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; }
 .card-badges {
   position: absolute;
   top: 8px;
@@ -301,7 +301,7 @@
 .duo-card h3 { font-size: 22px; font-weight: 900; margin: 6px 0 8px; }
 .duo-card p { font-size: 13.5px; opacity: 0.9; margin-bottom: 12px; }
 .duo-cta { font-weight: 800; font-size: 14px; }
-.duo-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; background: #fff; }
+.duo-card img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 12px; background: #fff; }
 
 /* ----------------------------------------------------------------- freshrow */
 .freshrow {
@@ -321,7 +321,7 @@
 }
 .freshcard:hover { border-color: var(--red); }
 .freshcard-media { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
-.freshcard-media img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #fafafa; }
+.freshcard-media img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--line); }
 .freshcard b { font-size: 14.5px; }
 .freshcard span { font-size: 12px; color: var(--muted); }
 
@@ -433,7 +433,9 @@
   border-radius: 18px;
   overflow: hidden;
 }
-.pdp-main-image img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.pdp-main-image img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; transition: transform 0.35s ease, object-position 0.35s ease; }
+.pdp-shot.is-zoom { transform: scale(1.75); object-position: 42% 40%; }
+.pdp-shot.is-close { transform: scale(2.5); object-position: 56% 62%; }
 .pdp-badge {
   position: absolute;
   top: 14px;
@@ -467,7 +469,7 @@
   overflow: hidden;
 }
 .pdp-thumbs button.is-active { border-color: var(--red); }
-.pdp-thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+.pdp-thumbs img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; }
 
 .pdp-info { display: flex; flex-direction: column; gap: 6px; }
 .pdp-brand { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
@@ -601,7 +603,7 @@
   border-bottom: 1px solid var(--line);
   align-items: start;
 }
-.cartitem-img img { width: 96px; height: 96px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); background: #fafafa; }
+.cartitem-img img { width: 96px; height: 96px; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
 .cartitem-body { display: flex; flex-direction: column; gap: 3px; }
 .cartitem-brand { font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .cartitem-name { font-weight: 700; font-size: 14.5px; }
@@ -739,7 +741,7 @@
 .order-sub { margin-top: 8px; }
 .orderitems { display: grid; gap: 12px; }
 .orderitems li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
-.orderitems img { width: 56px; height: 56px; border-radius: 8px; border: 1px solid var(--line); object-fit: cover; }
+.orderitems img { width: 56px; height: 56px; border-radius: 8px; border: 1px solid var(--line); object-fit: contain; background: #fff; }
 .orderitems span { display: flex; flex-direction: column; }
 .orderitems b { font-size: 13.5px; }
 .orderitems small { font-size: 12px; color: var(--muted); }

@@ -75,6 +75,25 @@ export default function Product() {
   const description = descriptionFor(product);
   const nutrition = nutritionFor(product);
 
+  // Real Coles catalogues expose one hero photo per SKU, so the gallery shows
+  // that photo at three magnifications (front / detail / close-up) instead of
+  // inventing shots that do not exist.
+  const views = useMemo(() => {
+    const src = product.images[0];
+    return [
+      { src, mode: 'front', label: 'Front of pack' },
+      { src, mode: 'zoom', label: 'Detail' },
+      { src, mode: 'close', label: 'Close-up' }
+    ];
+  }, [product]);
+
+  const fallback = (e) => {
+    if (!e.currentTarget.dataset.fallback) {
+      e.currentTarget.dataset.fallback = '1';
+      e.currentTarget.src = '/img/placeholder.svg';
+    }
+  };
+
   function handleAdd() {
     if (outOfStock) return;
     add(product.id, qty);
@@ -122,20 +141,28 @@ export default function Product() {
       <div className="pdp-top">
         <div className="pdp-gallery">
           <div className="pdp-main-image">
-            <img src={product.images[imageIndex]} alt={product.name} width="600" height="600" />
+            <img
+              src={views[imageIndex].src}
+              alt={`${product.name} — ${views[imageIndex].label}`}
+              width="600"
+              height="600"
+              className={`pdp-shot is-${views[imageIndex].mode}`}
+              onError={fallback}
+            />
             {product.badge ? <span className="pdp-badge">{product.badge}</span> : null}
             {saving > 0 ? <span className="pdp-save">Save {money(saving)}</span> : null}
           </div>
           <div className="pdp-thumbs">
-            {product.images.map((src, i) => (
+            {views.map((view, i) => (
               <button
-                key={src}
+                key={view.mode}
                 type="button"
                 className={i === imageIndex ? 'is-active' : ''}
                 onClick={() => setImageIndex(i)}
-                aria-label={`View image ${i + 1}`}
+                aria-label={view.label}
+                title={view.label}
               >
-                <img src={src} alt="" width="600" height="600" />
+                <img src={view.src} alt="" width="600" height="600" className={`pdp-shot is-${view.mode}`} onError={fallback} />
               </button>
             ))}
           </div>

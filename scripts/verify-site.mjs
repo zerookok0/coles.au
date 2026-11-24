@@ -125,12 +125,17 @@ await check('11. cart skeleton declared before connector', () => {
   return 'order ok';
 });
 
-await check('12. product images generated', () => {
-  const dir = path.join(DIST, 'img', 'p');
-  if (!fs.existsSync(dir)) throw new Error('no product images');
-  const count = fs.readdirSync(dir).length;
-  if (count < 1000) throw new Error(`only ${count} images`);
-  return `${count} images`;
+await check('12. catalog carries real Coles products', () => {
+  const catalog = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public/data/catalog.json'), 'utf8'));
+  const products = catalog.products || [];
+  if (products.length < 1000) throw new Error(`only ${products.length} products`);
+  const noImage = products.filter((p) => !p.images || !p.images.length).length;
+  if (noImage) throw new Error(`${noImage} products without an image`);
+  const badPrice = products.filter((p) => !Number.isInteger(p.price) || p.price <= 0).length;
+  if (badPrice) throw new Error(`${badPrice} products with a non-integer price`);
+  const cdn = products.filter((p) => /^https:\/\/productimages\.coles\.com\.au\//.test(p.images[0])).length;
+  if (cdn < products.length * 0.99) throw new Error('images are not the real Coles CDN assets');
+  return `${products.length} SKUs · ${catalog.categories.length} categories · ${catalog.departments.length} departments · ${cdn} real images`;
 });
 
 /* ------------------------------------------------------------ functions dry run */

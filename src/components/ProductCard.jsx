@@ -37,7 +37,19 @@ export default function ProductCard({ product, compact = false }) {
   return (
     <article className={`card ${compact ? 'card-compact' : ''} ${outOfStock ? 'is-out' : ''}`}>
       <Link to={`/product/${product.slug}`} className="card-media" aria-label={product.name}>
-        <img src={product.images[0]} alt={product.name} loading="lazy" width="600" height="600" />
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          loading="lazy"
+          width="600"
+          height="600"
+          onError={(e) => {
+            if (!e.currentTarget.dataset.fallback) {
+              e.currentTarget.dataset.fallback = '1';
+              e.currentTarget.src = '/img/placeholder.svg';
+            }
+          }}
+        />
         <span className="card-badges">
           {product.badge ? <span className={`badge badge-${product.badge.replace(/\s+/g, '').toLowerCase()}`}>{product.badge}</span> : null}
           {saving > 0 ? <span className="badge badge-save">Save {money(saving)}</span> : null}

@@ -11,28 +11,41 @@ import {
   DEPARTMENTS,
   PRODUCTS,
   SPECIALS,
-  getCategory,
+  getDepartment,
   money,
-  productsInCategory
+  productsInDepartment
 } from '../data/catalog.js';
 import { SITE, PROMO } from '../config.js';
-import { useCart } from '../state/index.jsx';
+
+const FRESH_DEPTS = ['fruit-veg', 'meat-seafood', 'bakery', 'dairy-eggs', 'frozen', 'drinks'];
 
 export default function Home() {
-  const { subtotal, count } = useCart();
-
   const specialsRail = useMemo(() => SPECIALS.slice(0, 14), []);
-  const popular = useMemo(
-    () => [...PRODUCTS].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 14),
-    []
-  );
+  const popular = useMemo(() => [...PRODUCTS].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 14), []);
+
   const fresh = useMemo(() => {
-    const ids = ['fruit', 'vegetables', 'beef', 'seafood', 'bread', 'milk'];
-    return ids.map((id) => ({ cat: getCategory(id), items: productsInCategory(id).slice(0, 4) })).filter((x) => x.cat);
+    return FRESH_DEPTS.map((id) => {
+      const dept = getDepartment(id);
+      const items = productsInDepartment(id).slice(0, 4);
+      if (!dept || items.length === 0) return null;
+      return {
+        dept,
+        items,
+        count: dept.count,
+        from: Math.min(...items.map((p) => p.price))
+      };
+    }).filter(Boolean);
   }, []);
 
-  const promoProgress = Math.min(100, Math.round((subtotal / 10000) * 100));
-  const toGo = Math.max(0, 10000 - subtotal);
+  const promoPicks = useMemo(() => {
+    const pantry = PRODUCTS.find((p) => p.dept === 'pantry' && p.images && p.images.length);
+    const fruit = PRODUCTS.find((p) => p.dept === 'fruit-veg' && p.images && p.images.length);
+    return { pantry, fruit };
+  }, []);
+
+  const missionArt = useMemo(() => PRODUCTS.slice(0, 3), []);
+  const promoProgress = 0;
+  const toGo = 10000;
 
   return (
     <div className="home">
@@ -57,12 +70,12 @@ export default function Home() {
           </Link>
           <Link to="/shop?filter=special" className="quicktile">
             <Icon name="tag" size={26} />
-            <b>{SPECIALS.length} specials</b>
+            <b>{SPECIALS.length.toLocaleString()} specials</b>
             <span>this week only</span>
           </Link>
         </section>
 
-        <section className="catgrid" aria-label="Shop by category">
+        <section className="catgrid" aria-label="Shop by department">
           <div className="section-head">
             <h2>Shop by department</h2>
             <Link to="/shop" className="section-link">
@@ -73,43 +86,63 @@ export default function Home() {
           <div className="catgrid-inner">
             {DEPARTMENTS.map((d) => (
               <Link key={d.id} to={`/shop?dept=${d.id}`} className="cattile">
-                <img src={d.image} alt="" width="400" height="400" loading="lazy" />
+                <img
+                  src={d.image}
+                  alt=""
+                  width="400"
+                  height="400"
+                  loading="lazy"
+                  onError={(e) => {
+                    if (!e.currentTarget.dataset.fallback) {
+                      e.currentTarget.dataset.fallback = '1';
+                      e.currentTarget.src = '/img/placeholder.svg';
+                    }
+                  }}
+                />
                 <span>
                   <b>{d.name}</b>
-                  <small>{d.count} products</small>
+                  <small>{d.count.toLocaleString()} products</small>
                 </span>
               </Link>
             ))}
           </div>
         </section>
 
-        <section className="mission" aria-label="Weekly savings progress">
+        <section className="mission" aria-label="Weekly reward">
           <div className="mission-copy">
             <span className="mission-kicker">Weekly reward</span>
             <h2>Spend $100 and get $10 off your next shop</h2>
             <p>
-              You have spent <b>{money(subtotal)}</b>
-              {toGo > 0 ? (
-                <> — add <b>{money(toGo)}</b> to unlock the $10 reward.</>
-              ) : (
-                <> — reward unlocked. It will apply automatically at checkout.</>
-              )}
+              Add <b>{money(toGo)}</b> to your cart to unlock the $10 reward — it applies automatically at checkout.
             </p>
             <div className="mission-bar">
               <i style={{ width: `${promoProgress}%` }} />
             </div>
             <div className="mission-meta">
               <span>{promoProgress}% complete</span>
-              <span>{count} items in cart</span>
+              <span>Free delivery over {money(SITE.freeDeliveryThreshold)}</span>
             </div>
             <Link to="/shop" className="btn btn-primary">
               Keep shopping
             </Link>
           </div>
           <div className="mission-art">
-            <img src={PRODUCTS[0].images[0]} alt="" width="600" height="600" />
-            <img src={PRODUCTS[40].images[0]} alt="" width="600" height="600" />
-            <img src={PRODUCTS[120].images[0]} alt="" width="600" height="600" />
+            {missionArt.map((p) => (
+              <img
+                key={p.id}
+                src={p.image}
+                alt=""
+                width="600"
+                height="600"
+                loading="lazy"
+                onError={(e) => {
+                  if (!e.currentTarget.dataset.fallback) {
+                    e.currentTarget.dataset.fallback = '1';
+                    e.currentTarget.src = '/img/placeholder.svg';
+                  }
+                }}
+              />
+            ))}
           </div>
         </section>
 
@@ -129,7 +162,7 @@ export default function Home() {
               <p>Pasta, cereal, sauces and snacks — all in one shop.</p>
               <span className="duo-cta">Shop pantry →</span>
             </div>
-            <img src={PRODUCTS.find((p) => p.cat === 'snacks').images[0]} alt="" loading="lazy" />
+            {promoPicks.pantry ? <img src={promoPicks.pantry.image} alt="" loading="lazy" /> : null}
           </Link>
 
           <Link to="/shop?dept=fruit-veg" className="duo-card duo-green">
@@ -139,28 +172,30 @@ export default function Home() {
               <p>Australian grown, delivered fresh or ready to collect.</p>
               <span className="duo-cta">Shop fresh →</span>
             </div>
-            <img src={PRODUCTS.find((p) => p.cat === 'fruit').images[0]} alt="" loading="lazy" />
+            {promoPicks.fruit ? <img src={promoPicks.fruit.image} alt="" loading="lazy" /> : null}
           </Link>
         </section>
 
         <ProductRail
           title="Most popular this week"
-          subtitle={`Loved by shoppers across ${CATALOG_SIZE} products in store`}
+          subtitle={`Loved by shoppers across ${CATALOG_SIZE.toLocaleString()} products in store`}
           viewAllTo="/shop"
           products={popular}
           renderCard={(p) => <ProductCard key={p.id} product={p} />}
         />
 
         <section className="freshrow" aria-label="Fresh categories">
-          {fresh.map(({ cat, items }) => (
-            <Link key={cat.id} to={`/category/${cat.id}`} className="freshcard">
+          {fresh.map(({ dept, items, count, from }) => (
+            <Link key={dept.id} to={`/shop?dept=${dept.id}`} className="freshcard">
               <div className="freshcard-media">
                 {items.slice(0, 3).map((p) => (
-                  <img key={p.id} src={p.images[0]} alt="" loading="lazy" />
+                  <img key={p.id} src={p.image} alt="" loading="lazy" />
                 ))}
               </div>
-              <b>{cat.name}</b>
-              <span>{items.length * 6} products from {money(Math.min(...items.map((p) => p.price)))}</span>
+              <b>{dept.name}</b>
+              <span>
+                {count.toLocaleString()} products from {money(from)}
+              </span>
             </Link>
           ))}
         </section>
