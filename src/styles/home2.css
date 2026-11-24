@@ -225,6 +225,8 @@
   overflow: hidden;
 }
 .railnav-circle img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+.railnav-circle img.is-badge { padding: 0; object-fit: cover; }
+.railnav-circle.is-badge { border: 0; background: transparent; }
 .railnav-item:hover .railnav-circle { border-color: var(--red); }
 .railnav-label {
   font-size: 12.5px;
@@ -372,6 +374,24 @@
 }
 
 /* ------------------------------------------------------- home: promo cards */
+.promoband {
+  background: #101010;
+  color: #fff;
+  border-radius: 18px;
+  padding: 24px 22px 28px;
+  margin-bottom: 30px;
+}
+.promoband-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.promoband-head h2 { font-size: 20px; font-weight: 800; }
+.promoband-more { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 700; color: #fff; opacity: 0.85; }
+.promoband .pcard-title { color: #fff; }
+
 .promocards {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

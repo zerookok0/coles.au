@@ -19,8 +19,17 @@ function Rail({ items }) {
       <div className="railnav-track">
         {items.map((item) => (
           <Link key={item.title} to={item.href} className="railnav-item">
-            <span className="railnav-circle">
-              <img src={item.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
+            <span
+              className={`railnav-circle ${item.kind === 'badge' ? 'is-badge' : ''}`}
+              style={item.tint ? { background: item.tint } : undefined}
+            >
+              <img
+                src={item.image}
+                alt=""
+                loading="lazy"
+                className={item.kind === 'badge' ? 'is-badge' : ''}
+                onError={IMG_FALLBACK}
+              />
             </span>
             <span className="railnav-label">{item.title}</span>
           </Link>
@@ -135,6 +144,32 @@ export default function Home() {
           ))}
         </section>
 
+        <section className="promoband" aria-label="Offers">
+          <div className="promoband-head">
+            <h2>This week at Coles</h2>
+            <Link to="/shop?filter=special" className="promoband-more">
+              View all offers
+              <Icon name="chevron" size={14} />
+            </Link>
+          </div>
+          <div className="promocards">
+            {cards.slice(0, 5).map((c) => (
+              <Link key={c.title} to={c.href} className="pcard">
+                <div className="pcard-media">
+                  <img src={c.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
+                  {c.savePercentage ? (
+                    <span className="pcard-roundel">
+                      <b>{c.savePercentage}%</b>
+                      <small>off</small>
+                    </span>
+                  ) : null}
+                </div>
+                <p className="pcard-title">{c.title}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {rows[0] ? (
           <section className="frow">
             <div className="frow-head">
@@ -151,23 +186,6 @@ export default function Home() {
             </div>
           </section>
         ) : null}
-
-        <section className="promocards" aria-label="Offers">
-          {cards.slice(0, 5).map((c) => (
-            <Link key={c.title} to={c.href} className="pcard">
-              <div className="pcard-media">
-                <img src={c.image} alt="" loading="lazy" onError={IMG_FALLBACK} />
-                {c.savePercentage ? (
-                  <span className="pcard-roundel">
-                    <b>{c.savePercentage}%</b>
-                    <small>off</small>
-                  </span>
-                ) : null}
-              </div>
-              <p className="pcard-title">{c.title}</p>
-            </Link>
-          ))}
-        </section>
 
         {home.promo ? (
           <section

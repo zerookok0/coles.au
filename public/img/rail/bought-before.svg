@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="BB">
+  <circle cx="120" cy="120" r="120" fill="#12263F"/>
+  <circle cx="120" cy="120" r="104" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+  <text x="120" y="120" font-family="'Inter','Segoe UI',Roboto,Arial,sans-serif" font-size="64" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">BB</text>
+</svg>

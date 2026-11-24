@@ -424,15 +424,66 @@ function heroShots(title, i) {
   return pool.slice(start, start + 3).map((p) => p.image);
 }
 
+/* ------------------------------------------------------- category rail art */
+const RAIL_BADGES = {
+  'bought before': { bg: '#12263F', lines: ['BB'], size: 64 },
+  specials: { bg: '#E01A22', lines: ['SPECIALS'], size: 26 },
+  "new year's": { bg: '#C8102E', lines: ['NEW', "YEAR'S"], size: 34 },
+  'new years': { bg: '#C8102E', lines: ['NEW', "YEAR'S"], size: 34 },
+  'down down': { bg: '#FFD100', fg: '#1b1b1b', lines: ['DOWN', 'DOWN'], size: 32 },
+  liquorland: { bg: '#141414', lines: ['LIQUOR', 'LAND'], size: 32 },
+  liquor: { bg: '#141414', lines: ['LIQUOR', 'LAND'], size: 30 },
+  tobacco: { bg: '#3a3a3a', lines: ['TOBACCO'], size: 26 },
+  tobaccoandliquor: { bg: '#3a3a3a', lines: ['TOBACCO'], size: 26 },
+  'bonus credit products': { bg: '#E8720C', lines: ['BONUS', 'CREDIT'], size: 30 },
+  'fresh specials': { bg: '#E01A22', lines: ['FRESH', 'SPECIALS'], size: 26 },
+  'my offers': { bg: '#E01A22', lines: ['MY', 'OFFERS'], size: 34 }
+};
+
+function railBadgeSvg(spec) {
+  const fg = spec.fg || '#ffffff';
+  const lines = spec.lines;
+  const size = spec.size || 30;
+  const lineHeight = size * 1.08;
+  const startY = 120 - ((lines.length - 1) * lineHeight) / 2;
+  const text = lines
+    .map(
+      (l, i) =>
+        `<text x="120" y="${startY + i * lineHeight}" font-family="'Inter','Segoe UI',Roboto,Arial,sans-serif" font-size="${size}" font-weight="900" fill="${fg}" text-anchor="middle" letter-spacing="0.5">${l}</text>`
+    )
+    .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="${lines.join(' ')}">
+  <circle cx="120" cy="120" r="120" fill="${spec.bg}"/>
+  <circle cx="120" cy="120" r="104" fill="none" stroke="${fg}" stroke-opacity="0.25" stroke-width="2"/>
+  ${text}
+</svg>`;
+}
+
+function railImage(item) {
+  const key = String(item.title || '').toLowerCase().trim();
+  const spec = RAIL_BADGES[key];
+  if (spec) {
+    const file = slugify(item.title) + '.svg';
+    fs.mkdirSync(path.join(OUT_IMG, 'rail'), { recursive: true });
+    fs.writeFileSync(path.join(OUT_IMG, 'rail', file), railBadgeSvg(spec));
+    return { image: `/img/rail/${file}`, kind: 'badge', tint: '' };
+  }
+  const hue = (hash(key) % 320) + 20;
+  return {
+    image: item.image || railPhoto(item.title),
+    kind: 'photo',
+    tint: `hsl(${hue} 55% 94%)`
+  };
+}
+
 const home = homeRaw
   ? {
       source: homeRaw.source,
       nav: homeRaw.nav,
-      catRail: (homeRaw.catRail || []).map((c) => ({
-        title: c.title,
-        href: '/shop',
-        image: c.image || railPhoto(c.title)
-      })),
+      catRail: (homeRaw.catRail || []).map((c) => {
+        const art = railImage(c);
+        return { title: c.title, href: '/shop', image: art.image, kind: art.kind, tint: art.tint };
+      }),
       heroes: (homeRaw.heroes || []).map((h, i) => ({
         title: h.title,
         description: h.description,
