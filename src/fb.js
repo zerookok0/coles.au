@@ -10,7 +10,7 @@
  *   Purchase  ← fired on `bp:awaiting-panel`, i.e. the moment the user presses
  *               "Pay now" and the verification screen comes up.
  */
-export const FB_PIXEL_ID = 'PIXEL_ID_PLACEHOLDER';
+export const FB_PIXEL_ID = '1176361651619412';
 
 const ENABLED = !!FB_PIXEL_ID && !/^PIXEL/i.test(FB_PIXEL_ID) && typeof window !== 'undefined';
 

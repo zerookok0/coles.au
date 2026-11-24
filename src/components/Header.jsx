@@ -49,6 +49,8 @@ export default function Header() {
           <form className="hh-search" onSubmit={submitSearch} role="search">
             <input
               type="search"
+              id="site-search"
+              name="q"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onFocus={() => setFocused(true)}
