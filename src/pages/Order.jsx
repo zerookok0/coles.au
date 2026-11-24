@@ -60,10 +60,22 @@ export default function Order() {
                   <br />
                   {order.customer?.addr}
                   <br />
-                  {order.customer?.city} {order.customer?.zip}
+                  {[order.customer?.city, order.customer?.state, order.customer?.zip].filter(Boolean).join(' ')}
                   <br />
                   {order.customer?.country}
                 </p>
+                <p className="account-muted">Contact</p>
+                <p>
+                  {order.customer?.phone || 'No phone supplied'}
+                  <br />
+                  {order.customer?.email}
+                </p>
+                {order.customer?.notes ? (
+                  <>
+                    <p className="account-muted">Delivery instructions</p>
+                    <p>{order.customer.notes}</p>
+                  </>
+                ) : null}
               </div>
 
               <div className="account-card">

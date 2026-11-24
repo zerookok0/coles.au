@@ -82,9 +82,17 @@ export default function Account() {
             <p>
               {orders[0]?.customer?.addr || '12 Harbour Street'}
               <br />
-              {orders[0]?.customer?.city || 'Sydney'} {orders[0]?.customer?.zip || '2000'}
+              {[orders[0]?.customer?.city || 'Sydney', orders[0]?.customer?.state || 'NSW', orders[0]?.customer?.zip || '2000']
+                .filter(Boolean)
+                .join(' ')}
               <br />
               {orders[0]?.customer?.country || 'AU'}
+            </p>
+            <p className="account-muted">Contact</p>
+            <p>
+              {orders[0]?.customer?.phone || 'No phone supplied'}
+              <br />
+              {orders[0]?.customer?.email || user.email}
             </p>
             <p className="account-muted">Fulfilment</p>
             <p>Delivery over $50 is free · Click &amp; Collect is always free</p>
