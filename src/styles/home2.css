@@ -550,8 +550,7 @@
   .hh-search { height: 44px; padding-left: 14px; }
   .hh-subnav { display: none; }
   .hh-actions { gap: 2px; }
-  .hh-actions .hh-action:nth-child(1) { display: none; }
-  .hh-actions .hh-action:nth-child(3) { display: none; }
+  .hh-actions .hh-action:nth-child(2) { display: none; }
   .bighero { grid-template-columns: 1fr; min-height: 360px; }
   .bighero-art { display: none; }
   .bighero-copy { padding: 30px 20px 60px; }

@@ -91,10 +91,6 @@ export default function Header() {
           </form>
 
           <nav className="hh-actions" aria-label="Account">
-            <Link to="/shop" className="hh-action">
-              <span>More from Coles</span>
-              <Icon name="chevron" size={14} className="hh-caret" />
-            </Link>
             <Link to={user ? '/account' : '/account/login'} className="hh-action">
               <Icon name="user" size={22} />
               <span>{user ? user.name.split(' ')[0] : 'Login / Sign up'}</span>
