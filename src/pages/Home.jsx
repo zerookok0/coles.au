@@ -162,6 +162,7 @@ function Rail({ items }) {
 function HeroBanner({ items }) {
   const [index, setIndex] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
+  const touchStart = React.useRef(null);
 
   React.useEffect(() => {
     if (!items || items.length < 2 || paused) return undefined;
@@ -171,6 +172,7 @@ function HeroBanner({ items }) {
 
   if (!items || !items.length) return null;
   const hero = items[index];
+  const go = (delta) => setIndex((i) => (i + delta + items.length) % items.length);
   const offerBadge = (() => {
     if (hero.centerImage) return '';
     const text = `${hero.title} ${hero.description || ''}`;
@@ -180,10 +182,20 @@ function HeroBanner({ items }) {
 
   return (
     <section
-      className={`bighero ${hero.light ? 'is-light' : 'is-dark'}`}
+      className={`bighero ${hero.light ? 'is-light' : 'is-dark'} ${hero.bgImage ? 'has-photo' : 'no-photo'}`}
       style={{ background: hero.bg }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={(e) => {
+        touchStart.current = e.touches[0] ? e.touches[0].clientX : null;
+      }}
+      onTouchEnd={(e) => {
+        if (touchStart.current == null) return;
+        const end = e.changedTouches[0] ? e.changedTouches[0].clientX : touchStart.current;
+        const delta = end - touchStart.current;
+        touchStart.current = null;
+        if (Math.abs(delta) > 40) go(delta < 0 ? 1 : -1);
+      }}
       aria-roledescription="carousel"
     >
       <div className="bighero-inner">
