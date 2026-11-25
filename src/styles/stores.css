@@ -91,3 +91,12 @@
   .storeitem { flex-direction: column; }
   .storeitem-actions { justify-items: start; grid-auto-flow: column; align-items: center; }
 }
+
+/* keep the last row clear of the fixed mobile tab bar */
+@media (max-width: 860px) {
+  .storespage { padding-bottom: 92px; }
+  .stores-controls { flex-direction: column; }
+  .stores-search { min-width: 0; }
+  .stores-head { gap: 12px; }
+  .stores-current { width: 100%; }
+}
