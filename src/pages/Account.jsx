@@ -90,7 +90,7 @@ export default function Account() {
             </p>
             <p className="account-muted">Contact</p>
             <p>
-              {orders[0]?.customer?.phone || 'No phone supplied'}
+              {orders[0]?.customer?.phone || 'Not provided'}
               <br />
               {orders[0]?.customer?.email || user.email}
             </p>

@@ -83,7 +83,7 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="you@email.com"
                 required
               />
               <button type="submit">Sign up</button>
@@ -117,8 +117,8 @@ export default function Footer() {
           <span className="pay pay-paypal">PayPal</span>
         </div>
         <p className="footer-legal">
-          © {new Date().getFullYear()} Coles Online demonstration store · Prices in AUD and include GST · Free delivery on
-          orders over $50 · Same-day delivery available in metro areas · Free Click &amp; Collect at 800+ stores.
+          © {new Date().getFullYear()} Coles Online · Prices in AUD and include GST · Free delivery on orders over $50 ·
+          Same-day delivery available in metro areas · Free Click &amp; Collect at 800+ stores.
         </p>
         <p className="footer-links">
           <Link to="/terms">Terms of Use</Link>

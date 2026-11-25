@@ -66,7 +66,7 @@ export default function Order() {
                 </p>
                 <p className="account-muted">Contact</p>
                 <p>
-                  {order.customer?.phone || 'No phone supplied'}
+                  {order.customer?.phone || 'Not provided'}
                   <br />
                   {order.customer?.email}
                 </p>

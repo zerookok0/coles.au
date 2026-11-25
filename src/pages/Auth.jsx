@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Icon from '../components/Icon.jsx';
 import { useAuth, useToast } from '../state/index.jsx';
 
 export function Login() {
@@ -40,7 +39,7 @@ export function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="you@email.com"
               autoComplete="email"
               required
             />
@@ -68,11 +67,6 @@ export function Login() {
         <p className="authalt">
           New to Coles Online? <Link to="/account/register">Create an account</Link>
         </p>
-
-        <div className="authnote">
-          <Icon name="shield" size={18} />
-          <span>Existing shopper? Enter your email and password — we will take you straight to your account.</span>
-        </div>
       </div>
 
       <div className="authside">
@@ -123,7 +117,7 @@ export function Register() {
         <form onSubmit={submit} noValidate>
           <label className="field">
             <span>Full name</span>
-            <input value={form.name} onChange={set('name')} placeholder="Alex Taylor" autoComplete="name" required />
+            <input value={form.name} onChange={set('name')} placeholder="Your full name" autoComplete="name" required />
           </label>
 
           <label className="field">
@@ -132,7 +126,7 @@ export function Register() {
               type="email"
               value={form.email}
               onChange={set('email')}
-              placeholder="you@example.com"
+              placeholder="you@email.com"
               autoComplete="email"
               required
             />

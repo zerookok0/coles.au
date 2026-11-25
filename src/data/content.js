@@ -170,7 +170,7 @@ export const POLICY_PAGES = {
       ['Availability', 'Products are subject to availability and may be substituted where an item is out of stock. You can opt out of substitutions in your account settings.'],
       ['Delivery and collection', 'Delivery windows are estimates. Click & Collect orders are held for 24 hours after the notified ready time.'],
       ['Liability', 'Nothing in these terms limits rights you have under the Australian Consumer Law.'],
-      ['Contact', 'Questions about these terms: online.support@coles.example or 1800 061 562.']
+      ['Contact', 'Questions about these terms: online.support@coles.com.au or 1800 061 562.']
     ]
   },
   privacy: {
@@ -244,7 +244,7 @@ export const POLICY_PAGES = {
     sections: [
       ['Our commitment', 'We aim to meet WCAG 2.1 AA across the storefront, including keyboard navigation and screen reader support.'],
       ['Known limitations', 'Some third-party payment screens are outside our control and may not meet the same standard.'],
-      ['Feedback', 'If you hit an accessibility barrier, contact accessibility@coles.example and we will respond within five business days.']
+      ['Feedback', 'If you hit an accessibility barrier, contact accessibility@coles.com.au and we will respond within five business days.']
     ]
   },
   contact: {
