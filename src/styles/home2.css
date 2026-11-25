@@ -689,59 +689,99 @@
   .hh-subnav { display: none; }
   .hh-actions { gap: 2px; }
   .hh-actions .hh-action:nth-child(2) { display: none; }
-  /* --- hero, mobile: same 832x440 banner as desktop (their AEM model has no
-     separate mobile art), full-bleed, copy overlaid on a bottom scrim --- */
-  .bighero-inner { display: block; min-height: 0; padding: 0; }
-  .bighero-art { display: block; min-height: 0; }
+  /* --- hero, mobile: measured on coles.com.au at 390px ---------------------
+     wrapper 390x526 with 44px bottom padding, image 390x212 (cover) on top,
+     copy centred on the banner colour below it, full-width white pill CTA,
+     edge arrows + centred dots at the bottom.                                */
+  .bighero { padding-bottom: 44px; }
+  .bighero-inner { display: flex; flex-direction: column; min-height: 0; padding: 0; }
+  .bighero-art { order: 1; display: block; min-height: 0; }
+  .bighero-copy { order: 2; }
   .bighero-photo {
     position: static;
     width: 100%;
     height: auto;
-    aspect-ratio: 832 / 440;
+    aspect-ratio: 390 / 212;
     object-fit: cover;
     display: block;
   }
   .bighero.no-photo .bighero-art {
     display: flex;
-    gap: 4px;
-    padding: 18px 14px 6px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 212px;
+    padding: 0 18px;
   }
-  .bighero.no-photo .bighero-shot { width: 30%; border-radius: 8px; padding: 6px; }
+  .bighero.no-photo .bighero-shot { width: 26%; max-width: 130px; border-radius: 4px; }
 
   .bighero-copy {
-    padding: 16px 18px 54px;
+    padding: 16px 20px 0;
     max-width: none;
+    text-align: center;
+    align-items: center;
   }
-  .bighero.has-photo .bighero-copy {
-    position: absolute;
-    inset: auto 0 0 0;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 42%, rgba(0, 0, 0, 0.72) 100%);
-    color: #fff;
+  .bighero-copy h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
   }
-  .bighero-copy h2 { font-size: 22px; line-height: 1.12; }
   .bighero-copy p {
-    margin-top: 8px;
-    font-size: 13px;
+    margin-top: 0;
+    font-size: 18px;
+    line-height: 1.4;
     max-width: none;
+    text-align: center;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .bighero-cta { margin-top: 12px; padding: 10px 20px; font-size: 13.5px; }
+  .bighero-cta {
+    align-self: stretch;
+    width: 100%;
+    margin-top: 16px;
+    padding: 9px 16px;
+    border-radius: 21px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .bighero.is-dark .bighero-cta { background: #fff; color: #303840; }
+  .bighero.is-light .bighero-cta { background: var(--red); color: #fff; }
+
   .bighero-roundel,
-  .bighero-badge { width: 54px; height: 54px; font-size: 12px; margin-bottom: 10px; }
+  .bighero-badge { width: 54px; height: 54px; font-size: 12px; margin: 0 auto 12px; }
 
   .bighero-controls {
-    left: 50%;
-    right: auto;
-    bottom: 12px;
-    transform: translateX(-50%);
-    padding: 5px 10px;
+    left: 16px;
+    right: 16px;
+    bottom: 6px;
+    transform: none;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    justify-content: center;
   }
-  /* arrows are pointless on touch: dots + swipe only */
-  .bighero-controls > button:first-child,
-  .bighero-controls > button:last-child { display: none; }
+  .bighero-controls > button {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 20px;
+    display: grid;
+    place-items: center;
+  }
+  .bighero-controls > button:first-child { left: 0; }
+  .bighero-controls > button:last-of-type { right: 0; }
+  /* the middle control is the pause toggle — the real carousel has none */
+  .bighero-controls > button:nth-child(2) { display: none; }
+  .bighero-dots button { width: 8px; height: 8px; }
+  .bighero.is-light .bighero-controls > button { color: #1b1b1b; background: rgba(0, 0, 0, 0.12); }
 
   .qtiles { grid-template-columns: 1fr 1fr; }
   .promocards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -759,7 +799,6 @@
   .hh-search { width: 44px; min-width: 44px; padding: 0; border-radius: 50%; justify-content: center; }
   .hh-search input { display: none; }
   .hh-search > button { width: 44px; height: 44px; }
-  .bighero-copy h2 { font-size: 26px; }
   .qtile { padding: 18px 16px 92px; min-height: 210px; }
   .qtile-photo { width: 104px; height: 104px; }
   .promocards { grid-template-columns: 1fr 1fr; }

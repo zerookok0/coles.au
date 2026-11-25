@@ -1,0 +1,88 @@
+{
+ "vw": 390,
+ "vh": 844,
+ "hero": {
+  "cls": "coles-targeting-HeroBannerListHeroBannerHeroBannerWrapper css-1a01iu7",
+  "w": 390,
+  "h": 550,
+  "top": 294,
+  "bg": "rgb(26, 26, 26)",
+  "overflow": "visible",
+  "image": {
+   "w": 390,
+   "h": 212,
+   "top": 294,
+   "objFit": "cover",
+   "aspect": "auto",
+   "src": "image?url=https%3A%2F%2Fwww.coles.com.au%2Fcontent%2Fdam%2Fc"
+  },
+  "items": [
+   {
+    "tag": "h2",
+    "text": "Double your discount",
+    "size": "20px",
+    "weight": "700",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "y": 522,
+    "x": 20,
+    "w": 350,
+    "h": 24
+   },
+   {
+    "tag": "p",
+    "text": "Spend $350 online and use code SANTA to save $",
+    "size": "18px",
+    "weight": "400",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "y": 562,
+    "x": 20,
+    "w": 350,
+    "h": 72
+   },
+   {
+    "tag": "a",
+    "text": "Find out more",
+    "size": "16px",
+    "weight": "600",
+    "color": "rgb(48, 56, 64)",
+    "bg": "rgb(255, 255, 255)",
+    "y": 658,
+    "x": 20,
+    "w": 350,
+    "h": 42
+   },
+   {
+    "tag": "p",
+    "text": "*Ends 29/11. Redeem next shop discount by 8/12",
+    "size": "12px",
+    "weight": "400",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "y": 752,
+    "x": 20,
+    "w": 350,
+    "h": 32
+   },
+   {
+    "tag": "a",
+    "text": "T&Cs apply",
+    "size": "12px",
+    "weight": "400",
+    "color": "rgb(255, 255, 255)",
+    "bg": "rgba(0, 0, 0, 0)",
+    "y": 768,
+    "x": 258,
+    "w": 59,
+    "h": 16
+   }
+  ]
+ },
+ "section": {
+  "cls": "coles-targeting-SkeletonSkeletonWrapperLoadedComponent css-13o7eu2",
+  "w": 390,
+  "h": 550,
+  "top": 294
+ }
+}
