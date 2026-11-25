@@ -279,6 +279,9 @@
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   align-items: stretch;
   min-height: 440px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 .bighero-copy {
@@ -287,7 +290,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 40px 24px 52px max(48px, calc(50vw - 672px));
+  padding: 40px 24px 52px 24px;
   max-width: 620px;
 }
 .bighero-roundel { width: 78px; height: 78px; margin-bottom: 16px; object-fit: contain; }
@@ -358,7 +361,7 @@
 
 .bighero-controls {
   position: absolute;
-  right: max(16px, calc(50vw - 672px));
+  right: max(16px, calc(50vw - 696px));
   bottom: 16px;
   z-index: 3;
   display: flex;
