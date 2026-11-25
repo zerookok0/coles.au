@@ -48,6 +48,14 @@ worker/index.js            Workers 入口（若改用 Workers 部署时用）
 wrangler.toml              Workers 配置（Pages 部署时忽略）
 ```
 
+## 定位与门店逻辑
+
+- 首次进入（本会话没提示过、且没存过门店）→ 弹「Set your location」：**输入邮编**或**用当前定位**
+- 邮编 → 在门店目录里按邮编精确匹配；没有就把前两位相同的店按邮编距离排序；再没有就全局按数字距离取最近的 5 家
+- 定位（`navigator.geolocation`）→ haversine 算最近 5 家，显示「x.x km · Same-day delivery / Next-day delivery」（25 km 内算同城当日达）
+- 选定后写 `localStorage['coles_store_v1']` + `coles_postcode`，**自动回到首页**；顶部定位条、门店页「YOUR STORE」、结账页 Collection store 预选全部读这一份
+- 门店只影响展示与结账默认值，不影响价格与库存（目录是归档单一价，没有分店维度）
+
 ## 门店目录（/stores）
 
 `scrape/stores-photon.mjs` 用 OpenStreetMap 的 Photon 地理编码在澳洲范围内做自适应四叉树扫描（`brand=Coles` + `shop=supermarket`），产出 `scrape/raw/stores.json`，构建时落到 `public/data/stores.json`：

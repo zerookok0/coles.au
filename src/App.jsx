@@ -14,6 +14,7 @@ import Order from './pages/Order.jsx';
 import { NotFound, Policy } from './pages/Policy.jsx';
 import Stores from './pages/Stores.jsx';
 import { AuthProvider, CartProvider, StoreProvider, ToastProvider, useCart } from './state/index.jsx';
+import { LocationProvider } from './state/location.jsx';
 
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -75,8 +76,9 @@ export default function App() {
       <StoreProvider>
         <CartProvider>
           <AuthProvider>
-            <ScrollToTop />
-            <Header />
+            <LocationProvider>
+              <ScrollToTop />
+              <Header />
             <main className="site-main">
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -106,9 +108,10 @@ export default function App() {
             <Footer />
             <PromoPopup />
             <MobileTabs />
+            </LocationProvider>
           </AuthProvider>
-        </CartProvider>
-      </StoreProvider>
-    </ToastProvider>
+          </CartProvider>
+        </StoreProvider>
+      </ToastProvider>
   );
 }

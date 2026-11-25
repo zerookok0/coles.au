@@ -1,24 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Icon from '../components/Icon.jsx';
 import { Breadcrumbs } from '../components/Layout.jsx';
-import { useStore } from '../state/index.jsx';
+import { useStore, useToast } from '../state/index.jsx';
+import { distanceKm, loadStores } from '../state/location.jsx';
 
 const STATES = ['ALL', 'NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'NT', 'ACT'];
 
-function distanceKm(a, b) {
-  if (!a || !b) return null;
-  const R = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLon = ((b.lon - a.lon) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
-
 export default function Stores() {
   const { store: selected, choose } = useStore();
+  const { pushToast } = useToast();
+  const navigate = useNavigate();
   const [all, setAll] = useState(null);
   const [q, setQ] = useState('');
   const [stateFilter, setStateFilter] = useState('ALL');
@@ -28,14 +20,21 @@ export default function Stores() {
 
   useEffect(() => {
     let alive = true;
-    fetch('/data/stores.json', { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => alive && setAll(Array.isArray(data) ? data : []))
-      .catch(() => alive && setAll([]));
+    loadStores().then((data) => alive && setAll(data));
     return () => {
       alive = false;
     };
   }, []);
+
+  function pickStore(s) {
+    choose(s);
+    const km = coords ? distanceKm(coords, s) : null;
+    pushToast(`Store set: ${s.name}${km != null ? ` · ${km.toFixed(1)} km away` : ''}`, {
+      href: '/stores',
+      label: 'Change'
+    });
+    navigate('/');
+  }
 
   const filtered = useMemo(() => {
     if (!all) return [];
@@ -166,7 +165,7 @@ export default function Stores() {
                     <button
                       type="button"
                       className={`btn ${isCurrent ? 'btn-ghost' : 'btn-primary'} btn-sm`}
-                      onClick={() => choose(s)}
+                      onClick={() => pickStore(s)}
                       disabled={isCurrent}
                     >
                       {isCurrent ? 'Current store' : 'Set as my store'}

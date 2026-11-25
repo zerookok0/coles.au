@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DEPARTMENTS, HOME, POPULAR_SEARCHES, getCategory, money, searchProducts } from '../data/catalog.js';
 import { useCart, useAuth, useStore } from '../state/index.jsx';
+import { useLocationPicker } from '../state/location.jsx';
 import Icon from './Icon.jsx';
 
 export default function Header() {
@@ -9,6 +10,7 @@ export default function Header() {
   const { count, total } = useCart();
   const { user } = useAuth();
   const { store } = useStore();
+  const { open: openPicker } = useLocationPicker();
 
   const [q, setQ] = useState('');
   const [focused, setFocused] = useState(false);
@@ -18,8 +20,9 @@ export default function Header() {
 
   const nav = (HOME && HOME.nav) || [];
   const suggestions = useMemo(() => (q.trim().length > 1 ? searchProducts(q, { limit: 6 }) : []), [q]);
-  const storeWhere =
-    [store.street, store.suburb, store.state, store.postcode].filter(Boolean).join(', ') || store.address || '';
+  const storeWhere = store
+    ? [store.street, store.suburb, store.state, store.postcode].filter(Boolean).join(', ') || store.address || ''
+    : '';
 
   useEffect(() => {
     document.body.classList.toggle('no-scroll', menuOpen);
@@ -146,14 +149,22 @@ export default function Header() {
         <div className="hh-location">
           <div className="container hh-location-row">
             <Icon name="pin" size={18} />
-            <div>
-              <b>Set your location</b>
-              <span>
-                You&apos;re seeing items and prices for {store.name}
-                {storeWhere ? ` — ${storeWhere}` : ''}
-              </span>
-            </div>
-            <Link to="/stores" className="hh-location-change">Change</Link>
+            <button type="button" className="hh-location-btn" onClick={() => openPicker()}>
+              {store ? (
+                <>
+                  <b>{store.name}</b>
+                  <span>You&apos;re seeing items and prices for {storeWhere}</span>
+                </>
+              ) : (
+                <>
+                  <b>Set your location</b>
+                  <span>Enter your postcode to see delivery times, stores and prices for your area</span>
+                </>
+              )}
+            </button>
+            <button type="button" className="hh-location-change" onClick={() => openPicker()}>
+              {store ? 'Change' : 'Set'}
+            </button>
           </div>
         </div>
       </header>

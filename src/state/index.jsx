@@ -229,7 +229,7 @@ export const useAuth = () => useContext(AuthCtx);
 const StoreCtx = createContext(null);
 
 export function StoreProvider({ children }) {
-  const [store, setStore] = useState(() => readJSON(STORE_KEY, SITE.stores[0]));
+  const [store, setStore] = useState(() => readJSON(STORE_KEY, null));
 
   const choose = useCallback((next) => {
     setStore(next);
