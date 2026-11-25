@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import Icon from '../components/Icon.jsx';
 import { HOME, PRODUCTS, CATALOG_SIZE, getProduct, money } from '../data/catalog.js';
+import { useCart, useToast } from '../state/index.jsx';
 import { SITE } from '../config.js';
 
 const IMG_FALLBACK = (e) => {
@@ -11,6 +12,125 @@ const IMG_FALLBACK = (e) => {
     e.currentTarget.src = '/img/placeholder.svg';
   }
 };
+
+/* ---------------------------------------------------------- super specials */
+const SUPER_DEADLINE_KEY = 'coles_super_deadline';
+const SUPER_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function readSuperDeadline() {
+  try {
+    const raw = Number(localStorage.getItem(SUPER_DEADLINE_KEY));
+    if (raw && raw > Date.now()) return raw;
+    const next = Date.now() + SUPER_WINDOW_MS;
+    localStorage.setItem(SUPER_DEADLINE_KEY, String(next));
+    return next;
+  } catch (e) {
+    return Date.now() + SUPER_WINDOW_MS;
+  }
+}
+
+function SuperCountdown() {
+  const [deadline, setDeadline] = useState(readSuperDeadline);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      // rolling 24h window: when it runs out, start a fresh one
+      if (t >= deadline) {
+        const next = t + SUPER_WINDOW_MS;
+        try {
+          localStorage.setItem(SUPER_DEADLINE_KEY, String(next));
+        } catch (e) {}
+        setDeadline(next);
+      }
+    }, 1000);
+    return () => clearInterval(i);
+  }, [deadline]);
+
+  const left = Math.max(0, deadline - now);
+  const h = String(Math.floor(left / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((left % 3600000) / 60000)).padStart(2, '0');
+  const s = String(Math.floor((left % 60000) / 1000)).padStart(2, '0');
+
+  return (
+    <span className="supercount" aria-label="Offer ends in">
+      <b>{h}</b>
+      <i>:</i>
+      <b>{m}</b>
+      <i>:</i>
+      <b>{s}</b>
+    </span>
+  );
+}
+
+function SuperCard({ product }) {
+  const { add } = useCart();
+  const { pushToast } = useToast();
+  const pct = product.was ? Math.round(((product.was - product.price) / product.was) * 100) : 0;
+
+  function addOne(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    add(product.id, 1);
+    pushToast(`${product.name} added to cart`, { href: '/cart', label: 'View cart' });
+  }
+
+  return (
+    <article className="supercard">
+      <Link to={`/product/${product.slug}`} className="supercard-media">
+        <img src={product.image} alt={product.name} loading="lazy" onError={IMG_FALLBACK} />
+        {pct ? <span className="supercard-off">-{pct}%</span> : null}
+      </Link>
+      <div className="supercard-body">
+        <span className="supercard-brand">{product.brand}</span>
+        <Link to={`/product/${product.slug}`} className="supercard-name">
+          {product.name}
+        </Link>
+        <div className="supercard-price">
+          <b>{money(product.price)}</b>
+          {product.was ? <s>{money(product.was)}</s> : null}
+        </div>
+        {product.was ? <span className="supercard-save">Save {money(product.was - product.price)}</span> : null}
+        <button type="button" className="btn-add" onClick={addOne}>
+          <Icon name="plus" size={16} />
+          Add
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function SuperSpecials({ ids }) {
+  const list = useMemo(() => (ids || []).map((id) => getProduct(id)).filter(Boolean), [ids]);
+  if (!list.length) return null;
+
+  return (
+    <section className="superband" aria-label="Super specials">
+      <div className="superband-head">
+        <div>
+          <span className="superband-kicker">24 hours only</span>
+          <h2>Super Specials</h2>
+          <p>Up to 70% off the biggest everyday buys — while stock lasts.</p>
+        </div>
+        <div className="superband-right">
+          <span className="superband-ends">Ends in</span>
+          <SuperCountdown />
+          <Link to="/shop?filter=super" className="superband-more">
+            View all
+            <Icon name="chevron" size={14} />
+          </Link>
+        </div>
+      </div>
+      <div className="supergrid">
+        {list.map((p) => (
+          <SuperCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function Rail({ items }) {
   if (!items || !items.length) return null;
@@ -175,6 +295,8 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        <SuperSpecials ids={home.superSpecials} />
 
         <section className="qtiles" aria-label="More ways to save">
           {quad.map((q) => (

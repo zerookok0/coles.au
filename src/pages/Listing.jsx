@@ -35,11 +35,14 @@ export default function Listing({ mode = 'shop' }) {
   const department = dept ? getDepartment(dept) : null;
 
   const base = useMemo(() => {
+    if (filter === 'super') {
+      return PRODUCTS.filter((p) => p.was && (p.was - p.price) / p.was >= 0.5);
+    }
     if (mode === 'category' && category) return productsInCategory(category.id);
     if (mode === 'search') return searchProducts(q, { limit: 800 });
     if (department) return productsInDepartment(department.id);
     return PRODUCTS;
-  }, [mode, category, q, department]);
+  }, [mode, category, q, department, filter]);
 
   const priceCeiling = useMemo(() => Math.max(500, ...base.map((p) => p.price)), [base]);
 
@@ -48,6 +51,7 @@ export default function Listing({ mode = 'shop' }) {
     setMaxPrice(0);
     setBrand('all');
     setVisible(PAGE_SIZE);
+    if (filter === 'super') setSort('discount');
   }, [mode, slug, q, dept, filter]);
 
   const brands = useMemo(() => {
@@ -75,9 +79,11 @@ export default function Listing({ mode = 'shop' }) {
       ? department.name
       : mode === 'search'
         ? `Search results for “${q}”`
-        : filter === 'special'
-          ? 'Weekly specials'
-          : 'Shop all products';
+        : filter === 'super'
+          ? 'Super Specials'
+          : filter === 'special'
+            ? 'Weekly specials'
+            : 'Shop all products';
 
   const crumbs = [{ label: 'Shop', to: '/shop' }];
   if (department) crumbs.push({ label: department.name, to: `/shop?dept=${department.id}` });

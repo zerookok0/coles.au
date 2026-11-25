@@ -250,6 +250,7 @@
 .badge-bestseller { background: #1c1c1c; }
 .badge-new { background: #1a7f4b; }
 .badge-save { background: rgba(0, 0, 0, 0.78); text-transform: none; letter-spacing: 0; }
+.badge-superspecial { background: linear-gradient(90deg, #e01a22, #7c0b12); color: #fff; }
 
 .card-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
 .card-brand { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }

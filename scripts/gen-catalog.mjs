@@ -221,6 +221,7 @@ products.sort((a, b) => a.name.localeCompare(b.name));
 
 /* ------------------------------------------------------- manual overrides */
 const OVERRIDES = path.join(ROOT, 'scrape', 'raw', 'overrides.json');
+const superSpecialIds = [];
 if (fs.existsSync(OVERRIDES)) {
   let list = [];
   try {
@@ -264,6 +265,7 @@ if (fs.existsSync(OVERRIDES)) {
         existing.cat = catId;
         catNames.set(catId, o.cat);
       }
+      if (o.superSpecial) superSpecialIds.push(existing.id);
       patched += 1;
       continue;
     }
@@ -294,6 +296,7 @@ if (fs.existsSync(OVERRIDES)) {
     if (catId) catNames.set(catId, o.cat);
     products.push(p);
     index.set(id, p);
+    if (o.superSpecial) superSpecialIds.push(p.id);
     added += 1;
   }
 
@@ -575,6 +578,7 @@ function isLight(hex) {
 const home = homeRaw
   ? {
       source: homeRaw.source,
+      superSpecials: superSpecialIds,
       nav: homeRaw.nav,
       catRail: (homeRaw.catRail || []).map((c) => {
         const art = railImage(c);
